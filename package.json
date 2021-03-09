@@ -6,13 +6,15 @@
     "x/*"
   ],
   "eslintConfig": {
+    "ignorePatterns": "x",
     "extends": "eslint-config-nfour/.eslintrc.react"
   },
-  "main": "./x/StoryBrowser.js",
-  "types": "./x/StoryBrowser.d.ts",
+  "main": "./StoryBrowser.js",
+  "types": "./StoryBrowser.d.ts",
   "scripts": {
-    "build": "snowpack bundle",
-    "start": "snowpack dev"
+    "build": "rm -rf x/*; tsc -p tsconfig.production.json",
+    "start": "snowpack dev",
+    "npmRelease": "yarn build && cd ./x && npm publish"
   },
   "peerDependencies": {},
   "dependencies": {
