@@ -9,11 +9,8 @@ module.exports = {
   },
   plugins: [
     "@snowpack/plugin-typescript", // Just does type checks
-    // "@snowpack/plugin-babel", // Mainly for @emotion css
   ],
-  packageOptions: {
-    install: ["@emotion/styled/base"],
-  },
+  packageOptions: {},
   devOptions: {
     open: "none",
   },
