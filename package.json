@@ -9,8 +9,8 @@
     "ignorePatterns": "x",
     "extends": "eslint-config-nfour/.eslintrc.react"
   },
-  "main": "./StoryBrowser.js",
-  "types": "./StoryBrowser.d.ts",
+  "main": "./x/StoryBrowser.js",
+  "types": "./x/StoryBrowser.d.ts",
   "scripts": {
     "build": "rm -rf x/*; tsc -p tsconfig.production.json",
     "start": "snowpack dev",
