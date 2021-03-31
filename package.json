@@ -1,6 +1,6 @@
 {
   "name": "story-browser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A React component story browser as React components.",
   "module": "x/mjs",
   "bin": {
