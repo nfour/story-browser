@@ -1,6 +1,11 @@
+import { camelCase } from 'camel-case'
 import fastGlob from 'fast-glob'
-import { dirname } from 'node:path'
-import { relative, resolve } from 'path'
+import {
+  relative,
+  resolve,
+  parse as parsePath,
+  format as formatPath,
+} from 'path'
 
 export async function makeStoryMap({
   patterns,
@@ -27,26 +32,32 @@ export function pathsToModuleExports(paths: string[]) {
   const names = new Set<string>()
 
   const imports = paths.map((path, i) => {
+    const parsed = parsePath(path)
     const name = (() => {
-      const baseName = `${dirname(path)}`
+      const symbolName = camelCase(parsed.name)
 
-      if (names.has(baseName)) {
-        return `${baseName}_${i}`
-      }
+      if (!names.has(symbolName)) return symbolName
 
-      return baseName
+      return `${symbolName}_${i}`
     })()
 
     names.add(name)
 
-    return { name, path }
+    const pathWithoutExt = formatPath({
+      ...parsed,
+      base: undefined,
+      ext: undefined,
+    })
+
+    return { name, originalPath: path, pathWithoutExt }
   })
 
   const importsText = imports.map(
-    ({ name, path }) => `import * as ${name} from '${path}';\n`,
+    ({ name, pathWithoutExt }) =>
+      `import * as ${name} from '${pathWithoutExt}'\n`,
   )
 
-  const exportsText = `export {\n${imports.map(({ name }) => `${name},\n`)}\n}`
+  const exportsText = `export {\n${imports.map(({ name }) => `  ${name},\n`)}}`
 
   return `${importsText}\n${exportsText}`
 }

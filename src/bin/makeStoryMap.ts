@@ -7,7 +7,7 @@ import { makeStoryMap, pathsToModuleExports } from '../makeStoryMap'
 
 const {
   dryRun: IS_DRY_RUN,
-  output: OUTPUT = './storyMap.json',
+  output: OUTPUT = './storyMap.js',
   from: FROM = process.cwd(),
   stream: IS_STREAM,
   _: PATTERNS,
