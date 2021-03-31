@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = require("fs");
 const yargs_1 = __importDefault(require("yargs"));
 const helpers_1 = require("yargs/helpers");
-const makeStoryMap_1 = require("../makeStoryMap");
+const makeStoryMap_1 = require("../cli/makeStoryMap");
 const { dryRun: IS_DRY_RUN, output: OUTPUT = './storyMap.js', from: FROM = process.cwd(), stream: IS_STREAM, _: PATTERNS, } = yargs_1.default(helpers_1.hideBin(process.argv)).command('makeStoryMap <patterns...>', 'Make a story map by matching glob patterns', (y) => {
     return y
         .option('output', {

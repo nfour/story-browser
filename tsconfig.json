@@ -22,7 +22,7 @@
     "./*.tsx",
     "*.js",
     ".*.js",
-    "testProject",
-    "src"
+    "src",
+    "testProject"
   ]
 }

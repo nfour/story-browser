@@ -3,7 +3,7 @@
 import { writeFileSync } from 'fs'
 import Yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { makeStoryMap, pathsToModuleExports } from '../makeStoryMap'
+import { makeStoryMap, pathsToModuleExports } from '../cli/makeStoryMap'
 
 const {
   dryRun: IS_DRY_RUN,

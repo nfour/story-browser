@@ -1,25 +1,25 @@
-import { css } from "@emotion/css";
-import * as React from "react";
-import { render } from "react-dom";
+import { css } from '@emotion/css'
+import * as React from 'react'
+import { render } from 'react-dom'
 import {
   RenderStory,
   StoryBrowser,
   useStoryBrowser,
-} from "../src/StoryBrowser";
-import * as exampleStories from "./examples.stories";
-import { XRoute, XRouter } from "xroute";
-import { Observer } from "mobx-react-lite";
+} from '../src/react/StoryBrowser'
+import * as storyMap from './nesting/folder/STORY_MAP'
+import { XRoute, XRouter } from 'xroute'
+import { Observer } from 'mobx-react-lite'
 
 const Root = () => {
-  const { stories } = useStoryBrowser({ modules: [exampleStories] });
+  const { stories } = useStoryBrowser({ modules: storyMap })
 
   const [router] = React.useState(
     () =>
       new XRouter([
-        XRoute("storyBrowser", "/:story?", {} as { story?: string }),
-        XRoute("story", "/iframe/:story", {} as { story: string }),
-      ])
-  );
+        XRoute('storyBrowser', '/:story?', {} as { story?: string }),
+        XRoute('story', '/iframe/:story', {} as { story: string }),
+      ]),
+  )
 
   return (
     <main
@@ -40,26 +40,21 @@ const Root = () => {
                 onIframeSrc={(story) => {
                   /** @example "#/story/my-story--id" */
                   return (
-                    "#" + router.routes.story.toPath({ story: story.storyId })
-                  );
+                    '#' + router.routes.story.toPath({ story: story.storyId })
+                  )
                 }}
                 layout={{
                   asFullscreenOverlay: true,
                 }}
               />
-            );
+            )
           }
 
           if (router.routes.story.isActive) {
-            const storyId = router.routes.story.params!.story;
-            const story = stories.get(storyId)!;
+            const storyId = router.routes.story.params!.story
+            const story = stories.get(storyId)!
 
-            if (!story)
-              return (
-                <>
-                  Cant find story <pre>{storyId}</pre>.
-                </>
-              );
+            if (!story) return <></>
 
             // Iframes come out with a red border!
             return (
@@ -71,16 +66,16 @@ const Root = () => {
               >
                 <RenderStory story={story} context={{}} />
               </div>
-            );
+            )
           }
 
-          return <>404</>;
+          return <>404</>
         }}
       </Observer>
     </main>
-  );
-};
+  )
+}
 
-render(<Root />, document.getElementById("__root"));
+render(<Root />, document.getElementById('__root'))
 
-import.meta.hot?.accept();
+import.meta.hot?.accept()

@@ -1,4 +1,4 @@
 module.exports = {
-  "ignorePatterns": "x",
-  "extends": "eslint-config-nfour/.eslintrc.react"
+  ignorePatterns: ['x', 'STORY_MAP.ts'],
+  extends: 'eslint-config-nfour/.eslintrc.react',
 }

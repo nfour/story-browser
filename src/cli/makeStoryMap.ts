@@ -47,21 +47,22 @@ export function pathsToModuleExports(paths: string[]) {
 
     names.add(name)
 
-    const pathWithoutExt = formatPath({
+    const importPath = `./${formatPath({
       ...parsed,
       base: undefined,
       ext: undefined,
-    })
+    })}`
 
-    return { name, originalPath: path, pathWithoutExt }
+    return { name, originalPath: path, importPath }
   })
 
-  const importsText = imports.map(
-    ({ name, pathWithoutExt }) =>
-      `import * as ${name} from '${pathWithoutExt}'\n`,
-  )
-
-  const exportsText = `export {\n${imports.map(({ name }) => `  ${name},\n`)}}`
-
-  return `${importsText}\n${exportsText}`
+  return [
+    imports
+      .map(({ name, importPath }) => `import * as ${name} from '${importPath}'`)
+      .join('\n'),
+    '',
+    'export {',
+    imports.map(({ name }) => `  ${name},`).join('\n'),
+    '}',
+  ].join('\n')
 }

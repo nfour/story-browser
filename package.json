@@ -16,7 +16,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:clean": "rm -rf x/*",
-    "cli:makeStoryMap": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx'",
+    "cli:makeStoryMap": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx' --output testProject/nesting/folder/STORY_MAP.ts",
     "start": "snowpack dev",
     "npmRelease": "yarn build && cd ./x && npm publish"
   },
@@ -50,9 +50,9 @@
     "mobx-react-lite": "^3.2.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "snowpack": "^3.0.13",
+    "snowpack": "^3.1.2",
     "typescript": "^4.2.3",
-    "xroute": "^3.1.0"
+    "xroute": "^4.0.0"
   },
   "resolutions": {
     "workerpool": "6.1.0"

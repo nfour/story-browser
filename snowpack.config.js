@@ -4,17 +4,17 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    "./TestProject": { url: "/" },
-    ".": { url: "/" },
+    './testProject': { url: '/' },
+    './src/react': { url: '/' },
   },
   plugins: [
-    "@snowpack/plugin-typescript", // Just does type checks
+    '@snowpack/plugin-typescript', // Just does type checks
   ],
   packageOptions: {},
   devOptions: {
-    open: "none",
+    open: 'none',
   },
   buildOptions: {
-    out: "./x",
+    out: './testProject/x',
   },
-};
+}
