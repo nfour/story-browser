@@ -1,7 +1,7 @@
 import * as React from 'react';
 export declare const useStoryBrowser: ({ modules: modulesInput, useIframe, }: {
     /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-    modules: (StoryModule | Promise<StoryModule>)[];
+    modules: (StoryModule | Promise<StoryModule>)[] | Record<string, StoryModule>;
     useIframe?: boolean | undefined;
 }) => {
     stories: StoryComponentMap;

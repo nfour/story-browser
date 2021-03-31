@@ -9,7 +9,7 @@ export const useStoryBrowser = ({
   useIframe = false,
 }: {
   /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: (StoryModule | Promise<StoryModule>)[]
+  modules: (StoryModule | Promise<StoryModule>)[] | Record<string, StoryModule>
   useIframe?: boolean
 }) => {
   const [modules, setModules] = React.useState<StoryModule[]>([])
@@ -20,7 +20,11 @@ export const useStoryBrowser = ({
     .join()
 
   React.useEffect(() => {
-    Promise.all(modulesInput).then((m) => setModules(m))
+    Promise.all(
+      modulesInput instanceof Array
+        ? modulesInput
+        : Object.values(modulesInput),
+    ).then((m) => setModules(m))
   }, [modulesInput])
 
   const stories: StoryComponentMap = React.useMemo(

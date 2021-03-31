@@ -10,7 +10,9 @@ export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) =
         .flat()
         .join();
     React.useEffect(() => {
-        Promise.all(modulesInput).then((m) => setModules(m));
+        Promise.all(modulesInput instanceof Array
+            ? modulesInput
+            : Object.values(modulesInput)).then((m) => setModules(m));
     }, [modulesInput]);
     const stories = React.useMemo(() => new Map(modules
         .map(({ default: meta = {}, ...exportMembers }) => {
