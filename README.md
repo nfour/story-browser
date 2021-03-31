@@ -9,7 +9,7 @@ Render React based [CSF (Component Story Format)](https://storybook.js.org/docs/
 - [x] Story Browser can be styled
 - [x] Story Browser has usable default layout
 - [ ] **Planned**:
-  - [ ] Sidebar listing is a nested & collapsable tree
+  - [ ] Sidebar listing is a [nested & collapsable * searchable tree](https://github.com/diogofcunha/react-virtualized-tree)
   - [ ] Story Browser default layout is good enough
   - [ ] Can zoom a component/iframe
   - [ ] Snowpack routing integration example
