@@ -91,7 +91,7 @@ export const StoryBrowser: FC<
 }) => {
   const stories =
     "modules" in input
-      ? useStoryBrowser({ modules: input.modules }).stories
+      ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
       : input.stories;
 
   const activeStory = stories.get(activeStoryId!);
