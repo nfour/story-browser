@@ -1,7 +1,19 @@
 # Story Browser
 
-Render React based CSF (Component Story Format) files using a react component!
+Render React based [CSF (Component Story Format)](https://storybook.js.org/docs/react/api/csf/) files using a react component!
 
+Features:
+- [x] Render CSF 
+- [x] Render CSF components in IFrames _(Optional, default:false)_
+- [x] CLI tool to generate import maps for stories
+- [x] Story Browser can be styled
+- [x] Story Browser has usable default layout
+- Upcoming:
+  - [ ] Sidebar listing is a nested & collapsable tree
+  - [ ] Story Browser default layout is good enough
+  - [ ] Can zoom a component/iframe
+  - [ ] More examples
+    - [ ] Snowpack routing
 
 ## React Usage
 
