@@ -5,7 +5,7 @@ import {
   RenderStory,
   StoryBrowser,
   useStoryBrowser,
-} from "../StoryBrowser/StoryBrowser";
+} from "../src/StoryBrowser";
 import * as exampleStories from "./examples.stories";
 import { XRoute, XRouter } from "xroute";
 import { Observer } from "mobx-react-lite";

@@ -37,7 +37,7 @@ export const useStoryBrowser = ({ modules, useIframe = false, }) => {
 };
 export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onIframeSrc, ...input }) => {
     const stories = "modules" in input
-        ? useStoryBrowser({ modules: input.modules }).stories
+        ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
         : input.stories;
     const activeStory = stories.get(activeStoryId);
     const storyKeys = [...stories.keys()];

@@ -22,7 +22,7 @@
     "./*.tsx",
     "*.js",
     ".*.js",
-    "TestProject",
-    "StoryBrowser"
+    "testProject",
+    "src"
   ]
 }
