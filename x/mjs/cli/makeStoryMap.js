@@ -1,6 +1,6 @@
 import { camelCase } from 'camel-case';
 import fastGlob from 'fast-glob';
-import { resolve, parse as parsePath, format as formatPath, dirname, relative, join, } from 'path';
+import { resolve, parse as parsePath, format as formatPath, dirname, relative, } from 'path';
 export async function makeStoryMap({ patterns, outputPath, rootPath, }) {
     const searchFrom = resolve(rootPath);
     const paths = await fastGlob(patterns, {
@@ -25,14 +25,20 @@ export function pathsToModuleExports(paths) {
             return `${symbolName}_${i}`;
         })();
         names.add(name);
-        const importPath = join('./', formatPath({
+        const importPath = `./${formatPath({
             ...parsed,
             base: undefined,
             ext: undefined,
-        }));
+        })}`;
         return { name, originalPath: path, importPath };
     });
-    const importsText = imports.map(({ name, importPath }) => `import * as ${name} from '${importPath}'\n`);
-    const exportsText = `export {\n${imports.map(({ name }) => `  ${name},\n`)}}`;
-    return `${importsText}\n${exportsText}`;
+    return [
+        imports
+            .map(({ name, importPath }) => `import * as ${name} from '${importPath}'`)
+            .join('\n'),
+        '',
+        'export {',
+        imports.map(({ name }) => `  ${name},`).join('\n'),
+        '}',
+    ].join('\n');
 }

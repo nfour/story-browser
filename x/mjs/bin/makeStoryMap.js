@@ -2,7 +2,7 @@
 import { writeFileSync } from 'fs';
 import Yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { makeStoryMap, pathsToModuleExports } from '../makeStoryMap';
+import { makeStoryMap, pathsToModuleExports } from '../cli/makeStoryMap';
 const { dryRun: IS_DRY_RUN, output: OUTPUT = './storyMap.js', from: FROM = process.cwd(), stream: IS_STREAM, _: PATTERNS, } = Yargs(hideBin(process.argv)).command('makeStoryMap <patterns...>', 'Make a story map by matching glob patterns', (y) => {
     return y
         .option('output', {
