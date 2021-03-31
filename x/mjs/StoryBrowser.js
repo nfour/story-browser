@@ -1,8 +1,8 @@
-import { sanitize, storyNameFromExport, toId } from "@componentdriven/csf";
-import { cx } from "@emotion/css";
-import { css } from "@emotion/react";
-import * as React from "react";
-import styled from "@emotion/styled";
+import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf';
+import { cx } from '@emotion/css';
+import { css } from '@emotion/react';
+import * as React from 'react';
+import styled from '@emotion/styled';
 export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
     const [modules, setModules] = React.useState([]);
     const allModuleKeys = modules
@@ -16,11 +16,11 @@ export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) =
         .map(({ default: meta = {}, ...exportMembers }) => {
         var _a, _b, _c, _d;
         const components = [];
-        const kinds = (_b = (_a = meta.title) === null || _a === void 0 ? void 0 : _a.split("/").map(sanitize)) !== null && _b !== void 0 ? _b : [];
+        const kinds = (_b = (_a = meta.title) === null || _a === void 0 ? void 0 : _a.split('/').map(sanitize)) !== null && _b !== void 0 ? _b : [];
         for (const [key, val] of Object.entries(exportMembers)) {
-            if (typeof val === "function") {
+            if (typeof val === 'function') {
                 const Story = val;
-                const id = toId(kinds.join("-"), key);
+                const id = toId(kinds.join('-'), key);
                 const isIframed = (_d = (_c = Story.useIframe) !== null && _c !== void 0 ? _c : meta.useIframe) !== null && _d !== void 0 ? _d : useIframe;
                 components.push([
                     id,
@@ -40,7 +40,7 @@ export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) =
     return { stories, modules };
 };
 export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onIframeSrc, ...input }) => {
-    const stories = "modules" in input
+    const stories = 'modules' in input
         ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
         : input.stories;
     const activeStory = stories.get(activeStoryId);
@@ -52,13 +52,13 @@ export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStory
         if (!firstKey)
             return;
         onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(firstKey);
-    }, [activeStoryId, storyKeys.join("")]);
+    }, [activeStoryId, storyKeys.join('')]);
     return (React.createElement($StoryBrowser, { asFullscreenOverlay: !!(layout === null || layout === void 0 ? void 0 : layout.asFullscreenOverlay), className: className },
         React.createElement($StoryBrowserInner, null,
             React.createElement($StoryList, null, [...stories.entries()].map(([key, { name, kinds }]) => (React.createElement($StoryListItem, { className: cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: () => {
                     onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
                 } },
-                React.createElement("small", null, kinds.map(storyNameFromExport).join(" • ")),
+                React.createElement("small", null, kinds.map(storyNameFromExport).join(' • ')),
                 React.createElement("span", null, name))))),
             (() => {
                 if (!activeStory)
@@ -146,5 +146,5 @@ export const $StoryBrowser = styled.main `
           top: 0;
           left: 0;
         `
-    : ""}
+    : ''}
 `;

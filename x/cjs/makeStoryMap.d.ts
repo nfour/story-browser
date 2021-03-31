@@ -7,4 +7,4 @@ export declare function makeStoryMap({ patterns, outputPath, rootPath, }: {
     relativePaths: string[];
     outputFilePath: string;
 }>;
-export declare function writeStoryMap(paths: string[], toPath: string): void;
+export declare function pathsToModuleExports(paths: string[]): string;

@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 export declare const useStoryBrowser: ({ modules: modulesInput, useIframe, }: {
     /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
     modules: (StoryModule | Promise<StoryModule>)[];
@@ -78,7 +78,7 @@ export interface StoryComponent {
     Story: StoryFn;
     useIframe: boolean;
 }
-export declare type StoryComponentMap = Map<StoryComponent["storyId"], StoryComponent>;
+export declare type StoryComponentMap = Map<StoryComponent['storyId'], StoryComponent>;
 /** Function JSX component */
 export declare type FC<P extends {} = {}> = (p: P) => JSX.Element;
 /** Function JSX component, with children */

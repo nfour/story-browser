@@ -1,32 +1,52 @@
-import fastGlob from "fast-glob";
-import { writeFileSync } from "fs";
-import { relative, resolve } from "path";
+import fastGlob from 'fast-glob'
+import { dirname } from 'node:path'
+import { relative, resolve } from 'path'
 
 export async function makeStoryMap({
   patterns,
   outputPath,
   rootPath,
 }: {
-  patterns: string[];
-  outputPath: string;
-  rootPath: string;
+  patterns: string[]
+  outputPath: string
+  rootPath: string
 }) {
   const paths = await fastGlob(patterns, {
     absolute: false,
     caseSensitiveMatch: false,
-    ignore: ["**/node_modules/**"],
-  });
+    ignore: ['**/node_modules/**'],
+  })
 
-  const relativePaths = paths.map((p) => `./${relative(rootPath, p)}`);
-  const outputFilePath = resolve(rootPath, outputPath);
+  const relativePaths = paths.map((p) => `./${relative(rootPath, p)}`)
+  const outputFilePath = resolve(rootPath, outputPath)
 
-  return {
-    paths,
-    relativePaths,
-    outputFilePath,
-  };
+  return { paths, relativePaths, outputFilePath }
 }
 
-export function writeStoryMap(paths: string[], toPath: string) {
-  writeFileSync(toPath, JSON.stringify(paths), "utf8");
+export function pathsToModuleExports(paths: string[]) {
+  const names = new Set<string>()
+
+  const imports = paths.map((path, i) => {
+    const name = (() => {
+      const baseName = `${dirname(path)}`
+
+      if (names.has(baseName)) {
+        return `${baseName}_${i}`
+      }
+
+      return baseName
+    })()
+
+    names.add(name)
+
+    return { name, path }
+  })
+
+  const importsText = imports.map(
+    ({ name, path }) => `import * as ${name} from '${path}';\n`,
+  )
+
+  const exportsText = `export {\n${imports.map(({ name }) => `${name},\n`)}\n}`
+
+  return `${importsText}\n${exportsText}`
 }

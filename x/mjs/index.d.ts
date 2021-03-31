@@ -1,1 +1,1 @@
-export * from "./StoryBrowser";
+export * from './StoryBrowser';

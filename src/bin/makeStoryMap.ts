@@ -1,62 +1,68 @@
 #!/usr/bin/env node
 
-import Yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-import { makeStoryMap, writeStoryMap } from "../makeStoryMap";
+import { writeFileSync } from 'fs'
+import Yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
+import { makeStoryMap, pathsToModuleExports } from '../makeStoryMap'
 
 const {
   dryRun: IS_DRY_RUN,
-  output: OUTPUT = "./storyMap.json",
+  output: OUTPUT = './storyMap.json',
   from: FROM = process.cwd(),
+  stream: IS_STREAM,
   _: PATTERNS,
 } = Yargs(hideBin(process.argv)).command(
-  "makeStoryMap <patterns...>",
-  "Make a story map by matching glob patterns",
+  'makeStoryMap <patterns...>',
+  'Make a story map by matching glob patterns',
   (y) => {
     return y
-      .option("output", {
-        describe: "The relative path to save output.",
-        default: "./storyMap.json",
-        type: "string",
+      .option('output', {
+        describe: 'The relative path to save output.',
+        default: './storyMap.json',
+        type: 'string',
       })
-      .option("from", {
-        describe: "The relative path search from",
-        default: "<current working directory>",
-        type: "string",
+      .option('from', {
+        describe: 'The relative path search from',
+        default: '<current working directory>',
+        type: 'string',
       })
-      .option("dryRun", {
-        describe: "Set this to avoid writing any files.",
+      .option('dryRun', {
+        describe: 'Set this to avoid writing any files.',
         default: false,
-        type: "boolean",
-      });
-  }
-).argv;
+        type: 'boolean',
+      })
+      .option('stream', {
+        describe: 'Hide all loggin so you can pipe the content to a file',
+        default: false,
+        type: 'boolean',
+      })
+  },
+).argv
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const log = IS_STREAM ? () => {} : console.log
 
 void (async () => {
-  console.log(`\nMaking story map...\n`);
+  log(`\nMaking story map...\n`)
 
-  console.dir({
-    PATTERNS,
-    IS_DRY_RUN,
-    OUTPUT,
-  });
-
-  console.log("");
+  if (IS_DRY_RUN) log('Dry run.')
 
   const { outputFilePath, relativePaths } = await makeStoryMap({
     outputPath: OUTPUT,
     patterns: PATTERNS as string[],
     rootPath: FROM,
-  });
+  })
 
-  if (IS_DRY_RUN) {
-    console.log("(Dry run) Found matches:");
-    console.dir(relativePaths);
-    console.log(`Would save to: ${outputFilePath}`);
-  } else {
-    writeStoryMap(relativePaths, outputFilePath);
-    console.log(`Saved to: ${outputFilePath}`);
+  const text = pathsToModuleExports(relativePaths)
+
+  log(`Saving to: ${outputFilePath}`)
+
+  if (!IS_DRY_RUN) {
+    writeFileSync(outputFilePath, text, 'utf8')
+    log('Saved.')
   }
 
-  console.log("");
-})();
+  log('')
+
+  if (IS_STREAM || IS_DRY_RUN) console.log(text)
+})()

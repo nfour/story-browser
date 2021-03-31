@@ -41,11 +41,11 @@ const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
         .map(({ default: meta = {}, ...exportMembers }) => {
         var _a, _b, _c, _d;
         const components = [];
-        const kinds = (_b = (_a = meta.title) === null || _a === void 0 ? void 0 : _a.split("/").map(csf_1.sanitize)) !== null && _b !== void 0 ? _b : [];
+        const kinds = (_b = (_a = meta.title) === null || _a === void 0 ? void 0 : _a.split('/').map(csf_1.sanitize)) !== null && _b !== void 0 ? _b : [];
         for (const [key, val] of Object.entries(exportMembers)) {
-            if (typeof val === "function") {
+            if (typeof val === 'function') {
                 const Story = val;
-                const id = csf_1.toId(kinds.join("-"), key);
+                const id = csf_1.toId(kinds.join('-'), key);
                 const isIframed = (_d = (_c = Story.useIframe) !== null && _c !== void 0 ? _c : meta.useIframe) !== null && _d !== void 0 ? _d : useIframe;
                 components.push([
                     id,
@@ -66,7 +66,7 @@ const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
 };
 exports.useStoryBrowser = useStoryBrowser;
 const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onIframeSrc, ...input }) => {
-    const stories = "modules" in input
+    const stories = 'modules' in input
         ? exports.useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
         : input.stories;
     const activeStory = stories.get(activeStoryId);
@@ -78,13 +78,13 @@ const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, cla
         if (!firstKey)
             return;
         onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(firstKey);
-    }, [activeStoryId, storyKeys.join("")]);
+    }, [activeStoryId, storyKeys.join('')]);
     return (React.createElement(exports.$StoryBrowser, { asFullscreenOverlay: !!(layout === null || layout === void 0 ? void 0 : layout.asFullscreenOverlay), className: className },
         React.createElement(exports.$StoryBrowserInner, null,
             React.createElement(exports.$StoryList, null, [...stories.entries()].map(([key, { name, kinds }]) => (React.createElement(exports.$StoryListItem, { className: css_1.cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: () => {
                     onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
                 } },
-                React.createElement("small", null, kinds.map(csf_1.storyNameFromExport).join(" • ")),
+                React.createElement("small", null, kinds.map(csf_1.storyNameFromExport).join(' • ')),
                 React.createElement("span", null, name))))),
             (() => {
                 if (!activeStory)
@@ -174,5 +174,5 @@ exports.$StoryBrowser = styled_1.default.main `
           top: 0;
           left: 0;
         `
-    : ""}
+    : ''}
 `;

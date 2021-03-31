@@ -1,42 +1,41 @@
-import { sanitize, storyNameFromExport, toId } from "@componentdriven/csf";
-import { cx } from "@emotion/css";
-import { css } from "@emotion/react";
-import * as React from "react";
-import styled from "@emotion/styled";
+import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
+import { cx } from '@emotion/css'
+import { css } from '@emotion/react'
+import * as React from 'react'
+import styled from '@emotion/styled'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
   useIframe = false,
 }: {
   /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: (StoryModule | Promise<StoryModule>)[];
-  useIframe?: boolean;
+  modules: (StoryModule | Promise<StoryModule>)[]
+  useIframe?: boolean
 }) => {
-  const [modules, setModules] = React.useState<StoryModule[]>([]);
+  const [modules, setModules] = React.useState<StoryModule[]>([])
 
   const allModuleKeys = modules
     .map((mod) => Object.keys(mod))
     .flat()
-    .join();
+    .join()
 
   React.useEffect(() => {
-    Promise.all(modulesInput).then((m) => setModules(m));
-  }, [modulesInput]);
+    Promise.all(modulesInput).then((m) => setModules(m))
+  }, [modulesInput])
 
   const stories: StoryComponentMap = React.useMemo(
     () =>
       new Map(
         modules
           .map(({ default: meta = {}, ...exportMembers }) => {
-            const components: [string, StoryComponent][] = [];
-            const kinds = meta.title?.split("/").map(sanitize) ?? [];
+            const components: [string, StoryComponent][] = []
+            const kinds = meta.title?.split('/').map(sanitize) ?? []
 
             for (const [key, val] of Object.entries(exportMembers)) {
-              if (typeof val === "function") {
-                const Story = val as StoryFn;
-                const id = toId(kinds.join("-"), key);
-                const isIframed =
-                  Story.useIframe ?? meta.useIframe ?? useIframe;
+              if (typeof val === 'function') {
+                const Story = val as StoryFn
+                const id = toId(kinds.join('-'), key)
+                const isIframed = Story.useIframe ?? meta.useIframe ?? useIframe
 
                 components.push([
                   id,
@@ -47,44 +46,44 @@ export const useStoryBrowser = ({
                     name: storyNameFromExport(key),
                     useIframe: isIframed,
                   },
-                ]);
+                ])
               }
             }
 
-            return components;
+            return components
           })
-          .flat()
+          .flat(),
       ),
-    [allModuleKeys]
-  );
+    [allModuleKeys],
+  )
 
-  return { stories, modules };
-};
+  return { stories, modules }
+}
 
 interface ModuleInputs {
-  modules: StoryModule[];
+  modules: StoryModule[]
 }
 interface StoriesInputs {
-  stories: StoryComponentMap;
+  stories: StoryComponentMap
 }
 
-type ExclusiveInputs = ModuleInputs | StoriesInputs;
+type ExclusiveInputs = ModuleInputs | StoriesInputs
 
 export const StoryBrowser: FC<
   {
-    activeStoryId?: string;
+    activeStoryId?: string
     /** Use this to return a `src` url for an <iframe src={src} /> */
-    onIframeSrc?(story: StoryComponent): string;
-    onActiveStoryIdChanged?(id: undefined | string): void;
+    onIframeSrc?(story: StoryComponent): string
+    onActiveStoryIdChanged?(id: undefined | string): void
     layout?: {
       /**
        * Adds css to make the component take all available space.
        * @default true
        */
-      asFullscreenOverlay?: boolean;
-    };
-    className?: string;
-    context?: {};
+      asFullscreenOverlay?: boolean
+    }
+    className?: string
+    context?: {}
   } & ExclusiveInputs
 > = ({
   context = {},
@@ -96,22 +95,22 @@ export const StoryBrowser: FC<
   ...input
 }) => {
   const stories =
-    "modules" in input
+    'modules' in input
       ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
-      : input.stories;
+      : input.stories
 
-  const activeStory = stories.get(activeStoryId!);
-  const storyKeys = [...stories.keys()];
+  const activeStory = stories.get(activeStoryId!)
+  const storyKeys = [...stories.keys()]
 
   React.useEffect(() => {
-    if (activeStory) return;
+    if (activeStory) return
 
-    const firstKey = storyKeys[0];
+    const firstKey = storyKeys[0]
 
-    if (!firstKey) return;
+    if (!firstKey) return
 
-    onActiveStoryIdChanged?.(firstKey);
-  }, [activeStoryId, storyKeys.join("")]);
+    onActiveStoryIdChanged?.(firstKey)
+  }, [activeStoryId, storyKeys.join('')])
 
   return (
     <$StoryBrowser
@@ -125,35 +124,35 @@ export const StoryBrowser: FC<
               className={cx({ isActive: activeStoryId === key })}
               key={`${key}${name}`}
               onClick={() => {
-                onActiveStoryIdChanged?.(key);
+                onActiveStoryIdChanged?.(key)
               }}
             >
-              <small>{kinds.map(storyNameFromExport).join(" • ")}</small>
+              <small>{kinds.map(storyNameFromExport).join(' • ')}</small>
               <span>{name}</span>
             </$StoryListItem>
           ))}
         </$StoryList>
         {(() => {
-          if (!activeStory) return <>No story selected.</>;
+          if (!activeStory) return <>No story selected.</>
           if (onIframeSrc && activeStory.useIframe) {
-            return <$StoryIFrame src={onIframeSrc(activeStory)} />;
+            return <$StoryIFrame src={onIframeSrc(activeStory)} />
           }
 
-          return <RenderStory story={activeStory} context={context} />;
+          return <RenderStory story={activeStory} context={context} />
         })()}
       </$StoryBrowserInner>
     </$StoryBrowser>
-  );
-};
+  )
+}
 
 export const RenderStory: FC<{
-  story: StoryComponent;
-  context?: {};
+  story: StoryComponent
+  context?: {}
 }> = ({ story: { Story, storyId, name }, context = {} }) => (
   <$StoryRenderWrapper>
     <Story {...context} />
   </$StoryRenderWrapper>
-);
+)
 
 export const $StoryListItem = styled.div`
   padding: 0.8em 1em;
@@ -196,32 +195,32 @@ export const $StoryListItem = styled.div`
     margin-bottom: 5px;
     margin-top: -2.5px;
   }
-`;
+`
 
 export const $StoryRenderWrapper = styled.main`
   height: 100%;
   width: 100%;
 
   flex-grow: 1;
-`;
+`
 
 export const $StoryIFrame = styled.iframe`
   width: 100%;
   height: 100%;
   border: 0;
-`;
+`
 
 export const $StoryList = styled.section`
   color: #fffc;
   height: 100%;
   font-size: 0.75em;
-`;
+`
 
 export const $StoryBrowserInner = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
-`;
+`
 
 export const $StoryBrowser = styled.main<{ asFullscreenOverlay: boolean }>`
   width: 100%;
@@ -236,34 +235,34 @@ export const $StoryBrowser = styled.main<{ asFullscreenOverlay: boolean }>`
           top: 0;
           left: 0;
         `
-      : ""}
-`;
+      : ''}
+`
 
 export interface StoryModule {
   default: {
-    title?: string;
-    component?: StoryFn;
-    useIframe?: boolean;
-  };
-  [k: string]: StoryFn | unknown;
+    title?: string
+    component?: StoryFn
+    useIframe?: boolean
+  }
+  [k: string]: StoryFn | unknown
 }
 
 export type StoryFn = {
-  (context: any): JSX.Element;
-  useIframe?: boolean;
-};
+  (context: any): JSX.Element
+  useIframe?: boolean
+}
 export interface StoryComponent {
-  storyId: string;
-  kinds: string[];
-  name: string;
-  Story: StoryFn;
-  useIframe: boolean;
+  storyId: string
+  kinds: string[]
+  name: string
+  Story: StoryFn
+  useIframe: boolean
 }
 
-export type StoryComponentMap = Map<StoryComponent["storyId"], StoryComponent>;
+export type StoryComponentMap = Map<StoryComponent['storyId'], StoryComponent>
 
 /** Function JSX component */
-export type FC<P extends {} = {}> = (p: P) => JSX.Element;
+export type FC<P extends {} = {}> = (p: P) => JSX.Element
 
 /** Function JSX component, with children */
-export type FCC<P = {}> = (p: P & { children: React.ReactNode }) => JSX.Element;
+export type FCC<P = {}> = (p: P & { children: React.ReactNode }) => JSX.Element

@@ -11,10 +11,6 @@
   "files": [
     "x/*"
   ],
-  "eslintConfig": {
-    "ignorePatterns": "x",
-    "extends": "eslint-config-nfour/.eslintrc.react"
-  },
   "scripts": {
     "build": "yarn build:clean; yarn build:cjs; yarn build:mjs",
     "build:cjs": "tsc -p tsconfig.cjs.json",
