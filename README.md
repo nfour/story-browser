@@ -34,7 +34,7 @@ export default ({ route }) => {
 }
 ```
 
-> In this example, `route.params.story` contains the active story id,
+> In this example, `route.params.story` contains the active story id,    
 > and `route.push({ ... })` sets it
 
 Its up to you to route this component.
@@ -50,7 +50,7 @@ yarn add story-browser
 yarn makeStoryMap '**/*.stories.tsx' --output ./src/storyBrowser/storiesMap.ts
 ```
 
-> The above generates an import mapping at `./src/storyBrowser/storymap.ts`
+> The above generates an import mapping at `./src/storyBrowser/storymap.ts`    
 > with all matched files from the provided glob pattern(s)
 
 ## This project
