@@ -1,15 +1,18 @@
 import { camelCase } from 'camel-case';
 import fastGlob from 'fast-glob';
-import { relative, resolve, parse as parsePath, format as formatPath, } from 'path';
+import { resolve, parse as parsePath, format as formatPath, dirname, relative, } from 'path';
 export async function makeStoryMap({ patterns, outputPath, rootPath, }) {
+    const searchFrom = resolve(rootPath);
     const paths = await fastGlob(patterns, {
-        absolute: false,
+        absolute: true,
         caseSensitiveMatch: false,
         ignore: ['**/node_modules/**'],
+        cwd: searchFrom,
     });
-    const relativePaths = paths.map((p) => `./${relative(rootPath, p)}`);
     const outputFilePath = resolve(rootPath, outputPath);
-    return { paths, relativePaths, outputFilePath };
+    const outputDir = dirname(outputFilePath);
+    const importPaths = paths.map((path) => relative(outputDir, path));
+    return { paths, searchFrom, outputFilePath, importPaths };
 }
 export function pathsToModuleExports(paths) {
     const names = new Set();

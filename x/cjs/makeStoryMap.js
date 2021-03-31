@@ -8,14 +8,17 @@ const camel_case_1 = require("camel-case");
 const fast_glob_1 = __importDefault(require("fast-glob"));
 const path_1 = require("path");
 async function makeStoryMap({ patterns, outputPath, rootPath, }) {
+    const searchFrom = path_1.resolve(rootPath);
     const paths = await fast_glob_1.default(patterns, {
-        absolute: false,
+        absolute: true,
         caseSensitiveMatch: false,
         ignore: ['**/node_modules/**'],
+        cwd: searchFrom,
     });
-    const relativePaths = paths.map((p) => `./${path_1.relative(rootPath, p)}`);
     const outputFilePath = path_1.resolve(rootPath, outputPath);
-    return { paths, relativePaths, outputFilePath };
+    const outputDir = path_1.dirname(outputFilePath);
+    const importPaths = paths.map((path) => path_1.relative(outputDir, path));
+    return { paths, searchFrom, outputFilePath, importPaths };
 }
 exports.makeStoryMap = makeStoryMap;
 function pathsToModuleExports(paths) {

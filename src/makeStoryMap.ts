@@ -1,10 +1,11 @@
 import { camelCase } from 'camel-case'
 import fastGlob from 'fast-glob'
 import {
-  relative,
   resolve,
   parse as parsePath,
   format as formatPath,
+  dirname,
+  relative,
 } from 'path'
 
 export async function makeStoryMap({
@@ -16,16 +17,19 @@ export async function makeStoryMap({
   outputPath: string
   rootPath: string
 }) {
+  const searchFrom = resolve(rootPath)
   const paths = await fastGlob(patterns, {
-    absolute: false,
+    absolute: true,
     caseSensitiveMatch: false,
     ignore: ['**/node_modules/**'],
+    cwd: searchFrom,
   })
 
-  const relativePaths = paths.map((p) => `./${relative(rootPath, p)}`)
   const outputFilePath = resolve(rootPath, outputPath)
+  const outputDir = dirname(outputFilePath)
+  const importPaths = paths.map((path) => relative(outputDir, path))
 
-  return { paths, relativePaths, outputFilePath }
+  return { paths, searchFrom, outputFilePath, importPaths }
 }
 
 export function pathsToModuleExports(paths: string[]) {

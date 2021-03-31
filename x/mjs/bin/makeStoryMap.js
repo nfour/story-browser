@@ -11,8 +11,8 @@ const { dryRun: IS_DRY_RUN, output: OUTPUT = './storyMap.js', from: FROM = proce
         type: 'string',
     })
         .option('from', {
-        describe: 'The relative path search from',
-        default: '<current working directory>',
+        describe: 'The path to search from & generate imports',
+        default: '<current working directory> ./',
         type: 'string',
     })
         .option('dryRun', {
@@ -32,12 +32,12 @@ void (async () => {
     log(`\nMaking story map...\n`);
     if (IS_DRY_RUN)
         log('Dry run.');
-    const { outputFilePath, relativePaths } = await makeStoryMap({
+    const { outputFilePath, importPaths } = await makeStoryMap({
         outputPath: OUTPUT,
         patterns: PATTERNS,
         rootPath: FROM,
     });
-    const text = pathsToModuleExports(relativePaths);
+    const text = pathsToModuleExports(importPaths);
     log(`Saving to: ${outputFilePath}`);
     if (!IS_DRY_RUN) {
         writeFileSync(outputFilePath, text, 'utf8');

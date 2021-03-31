@@ -22,8 +22,8 @@ const {
         type: 'string',
       })
       .option('from', {
-        describe: 'The relative path search from',
-        default: '<current working directory>',
+        describe: 'The path to search from & generate imports',
+        default: '<current working directory> ./',
         type: 'string',
       })
       .option('dryRun', {
@@ -47,13 +47,13 @@ void (async () => {
 
   if (IS_DRY_RUN) log('Dry run.')
 
-  const { outputFilePath, relativePaths } = await makeStoryMap({
+  const { outputFilePath, importPaths } = await makeStoryMap({
     outputPath: OUTPUT,
     patterns: PATTERNS as string[],
     rootPath: FROM,
   })
 
-  const text = pathsToModuleExports(relativePaths)
+  const text = pathsToModuleExports(importPaths)
 
   log(`Saving to: ${outputFilePath}`)
 
