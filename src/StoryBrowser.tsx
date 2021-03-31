@@ -5,17 +5,23 @@ import * as React from "react";
 import styled from "@emotion/styled";
 
 export const useStoryBrowser = ({
-  modules,
+  modules: modulesInput,
   useIframe = false,
 }: {
-  modules: StoryModule[];
+  /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
+  modules: (StoryModule | Promise<StoryModule>)[];
   useIframe?: boolean;
 }) => {
-  // TODO: use mobx class.
+  const [modules, setModules] = React.useState<StoryModule[]>([]);
+
   const allModuleKeys = modules
     .map((mod) => Object.keys(mod))
     .flat()
     .join();
+
+  React.useEffect(() => {
+    Promise.all(modulesInput).then((m) => setModules(m));
+  }, [modulesInput]);
 
   const stories: StoryComponentMap = React.useMemo(
     () =>
@@ -52,7 +58,7 @@ export const useStoryBrowser = ({
     [allModuleKeys]
   );
 
-  return { stories };
+  return { stories, modules };
 };
 
 interface ModuleInputs {

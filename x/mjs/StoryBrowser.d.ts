@@ -1,9 +1,11 @@
 import * as React from "react";
-export declare const useStoryBrowser: ({ modules, useIframe, }: {
-    modules: StoryModule[];
+export declare const useStoryBrowser: ({ modules: modulesInput, useIframe, }: {
+    /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
+    modules: (StoryModule | Promise<StoryModule>)[];
     useIframe?: boolean | undefined;
 }) => {
     stories: StoryComponentMap;
+    modules: StoryModule[];
 };
 interface ModuleInputs {
     modules: StoryModule[];

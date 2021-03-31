@@ -3,12 +3,15 @@ import { cx } from "@emotion/css";
 import { css } from "@emotion/react";
 import * as React from "react";
 import styled from "@emotion/styled";
-export const useStoryBrowser = ({ modules, useIframe = false, }) => {
-    // TODO: use mobx class.
+export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
+    const [modules, setModules] = React.useState([]);
     const allModuleKeys = modules
         .map((mod) => Object.keys(mod))
         .flat()
         .join();
+    React.useEffect(() => {
+        Promise.all(modulesInput).then((m) => setModules(m));
+    }, [modulesInput]);
     const stories = React.useMemo(() => new Map(modules
         .map(({ default: meta = {}, ...exportMembers }) => {
         const components = [];
@@ -33,7 +36,7 @@ export const useStoryBrowser = ({ modules, useIframe = false, }) => {
         return components;
     })
         .flat()), [allModuleKeys]);
-    return { stories };
+    return { stories, modules };
 };
 export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onIframeSrc, ...input }) => {
     const stories = "modules" in input

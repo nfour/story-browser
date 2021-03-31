@@ -28,12 +28,15 @@ const css_1 = require("@emotion/css");
 const react_1 = require("@emotion/react");
 const React = __importStar(require("react"));
 const styled_1 = __importDefault(require("@emotion/styled"));
-const useStoryBrowser = ({ modules, useIframe = false, }) => {
-    // TODO: use mobx class.
+const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
+    const [modules, setModules] = React.useState([]);
     const allModuleKeys = modules
         .map((mod) => Object.keys(mod))
         .flat()
         .join();
+    React.useEffect(() => {
+        Promise.all(modulesInput).then((m) => setModules(m));
+    }, [modulesInput]);
     const stories = React.useMemo(() => new Map(modules
         .map(({ default: meta = {}, ...exportMembers }) => {
         const components = [];
@@ -58,7 +61,7 @@ const useStoryBrowser = ({ modules, useIframe = false, }) => {
         return components;
     })
         .flat()), [allModuleKeys]);
-    return { stories };
+    return { stories, modules };
 };
 exports.useStoryBrowser = useStoryBrowser;
 const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onIframeSrc, ...input }) => {
