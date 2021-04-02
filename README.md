@@ -14,6 +14,9 @@ Render React based [CSF (Component Story Format)](https://storybook.js.org/docs/
   - [ ] Can zoom a component/iframe
   - [ ] Snowpack routing integration example
 
+**Not planned**:
+- Full CSF support
+  
 ## React Usage
 
 ```tsx

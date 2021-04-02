@@ -12,6 +12,7 @@ module.exports = {
   ],
   packageOptions: {},
   devOptions: {
+    port: 9001,
     open: 'none',
   },
   buildOptions: {
