@@ -9,23 +9,16 @@ export const useStoryBrowser = ({
   useIframe = false,
 }: {
   /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: (StoryModule | Promise<StoryModule>)[] | Record<string, StoryModule>
+  modules: StoryModule[] | Record<string, StoryModule>
   useIframe?: boolean
 }) => {
-  const [modules, setModules] = React.useState<StoryModule[]>([])
+  const modules =
+    modulesInput instanceof Array ? modulesInput : Object.values(modulesInput)
 
   const allModuleKeys = modules
     .map((mod) => Object.keys(mod))
     .flat()
     .join()
-
-  React.useEffect(() => {
-    Promise.all(
-      modulesInput instanceof Array
-        ? modulesInput
-        : Object.values(modulesInput),
-    ).then((m) => setModules(m))
-  }, [modulesInput])
 
   const stories: StoryComponentMap = React.useMemo(
     () =>
@@ -77,7 +70,7 @@ export const StoryBrowser: FC<
   {
     activeStoryId?: string
     /** Use this to return a `src` url for an <iframe src={src} /> */
-    onIframeSrc?(story: StoryComponent): string
+    onStoryUri?(story: StoryComponent): string
     onActiveStoryIdChanged?(id: undefined | string): void
     layout?: {
       /**
@@ -95,7 +88,7 @@ export const StoryBrowser: FC<
   activeStoryId,
   className,
   layout,
-  onIframeSrc,
+  onStoryUri,
   ...input
 }) => {
   const stories =
@@ -116,6 +109,8 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
+  const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
+
   return (
     <$StoryBrowser
       asFullscreenOverlay={!!layout?.asFullscreenOverlay}
@@ -123,42 +118,48 @@ export const StoryBrowser: FC<
     >
       <$StoryBrowserInner>
         <$StoryList>
-          {[...stories.entries()].map(([key, { name, kinds }]) => (
-            <$StoryListItem
-              className={cx({ isActive: activeStoryId === key })}
-              key={`${key}${name}`}
-              onClick={() => {
-                onActiveStoryIdChanged?.(key)
-              }}
-            >
-              <small>{kinds.map(storyNameFromExport).join(' • ')}</small>
-              <span>{name}</span>
-            </$StoryListItem>
-          ))}
-        </$StoryList>
-        {(() => {
-          if (!activeStory) return <>No story selected.</>
-          if (onIframeSrc && activeStory.useIframe) {
-            return <$StoryIFrame src={onIframeSrc(activeStory)} />
-          }
+          {[...stories.entries()].map(([key, story]) => {
+            const storyUri = onStoryUri?.(story)
 
-          return <RenderStory story={activeStory} context={context} />
-        })()}
+            return (
+              <$StoryListItem
+                className={cx({ isActive: activeStoryId === key })}
+                key={`${key}${name}`}
+                onClick={(e) => {
+                  onActiveStoryIdChanged?.(key)
+                  e.preventDefault()
+                }}
+                href={storyUri}
+              >
+                <small>
+                  {story.kinds.map(storyNameFromExport).join(' • ')}
+                </small>
+                <span>{story.name}</span>
+              </$StoryListItem>
+            )
+          })}
+        </$StoryList>
+        {iframeSrc && <$StoryIFrame src={iframeSrc} />}
+        {!iframeSrc && <RenderStory story={activeStory} context={context} />}
       </$StoryBrowserInner>
     </$StoryBrowser>
   )
 }
 
 export const RenderStory: FC<{
-  story: StoryComponent
+  story?: StoryComponent
   context?: {}
-}> = ({ story: { Story, storyId, name }, context = {} }) => (
+}> = ({ story, context = {} }) => (
   <$StoryRenderWrapper>
-    <Story {...context} />
+    {(() => {
+      if (!story) return <></>
+
+      return <story.Story {...context} />
+    })()}
   </$StoryRenderWrapper>
 )
 
-export const $StoryListItem = styled.div`
+export const $StoryListItem = styled.a`
   padding: 0.8em 1em;
   background: #aaa1;
   transition: all 0.1s ease;
@@ -169,10 +170,12 @@ export const $StoryListItem = styled.div`
   justify-content: space-between;
   flex-direction: column;
   flex-wrap: nowrap;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 
   &:hover {
     opacity: 0.9;
-    cursor: pointer;
   }
 
   &.isActive {
@@ -180,10 +183,6 @@ export const $StoryListItem = styled.div`
     border-left-color: #a1a1a1;
     z-index: 10;
     opacity: 1;
-
-    &:hover {
-      cursor: default;
-    }
   }
 
   span {
