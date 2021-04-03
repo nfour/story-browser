@@ -1,8 +1,15 @@
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
-import { cx } from '@emotion/css'
 import { css } from '@emotion/react'
 import * as React from 'react'
 import styled from '@emotion/styled'
+import Tree, {
+  Expandable,
+  Favorite,
+  FilteringContainer,
+  Node,
+} from 'react-virtualized-tree'
+import 'react-virtualized-tree/styles.css'
+import 'react-virtualized-tree/lib/main.css'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
@@ -116,6 +123,29 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
+  const [treeNodes, setTreeNodes] = React.useState<Node[]>(() => {
+    /** For components without a kind */
+    const unkindedKind = '*'
+    const items = [...stories.entries()]
+    const topLevelKinds = new Set([unkindedKind, ...items.map(([key, { kinds }]) => kinds[0]).flat()])
+
+    function createNode({ kinds, name, storyId}: StoryComponent) {
+      return {
+        id: storyId,
+        name: name,
+        children: items.filter(())
+      }
+    }
+
+    return [...topLevelKinds.values()].map((kind) => {
+      return {
+        id: kind,
+        name: kind,
+        children: items.filter(())
+      }
+    })
+  }
+
   return (
     <$StoryBrowser
       asFullscreenOverlay={!!layout?.asFullscreenOverlay}
@@ -123,7 +153,7 @@ export const StoryBrowser: FC<
     >
       <$StoryBrowserInner>
         <$StoryList>
-          {[...stories.entries()].map(([key, { name, kinds }]) => (
+          {/* {[...stories.entries()].map(([key, { name, kinds }]) => (
             <$StoryListItem
               className={cx({ isActive: activeStoryId === key })}
               key={`${key}${name}`}
@@ -134,7 +164,29 @@ export const StoryBrowser: FC<
               <small>{kinds.map(storyNameFromExport).join(' • ')}</small>
               <span>{name}</span>
             </$StoryListItem>
-          ))}
+          ))} */}
+          <FilteringContainer
+            nodes={treeNodes}
+            indexSearch={(searchTerm) => ({ name }) => {
+              return (
+                name.toUpperCase().indexOf(searchTerm.toUpperCase().trim()) > -1
+              )
+            }}
+          >
+            {({ nodes }) => (
+              <Tree nodes={nodes} onChange={setTreeNodes}>
+                {({ style, node, ...rest }) => (
+                  <div style={style}>
+                    <Expandable node={node} {...rest}>
+                      <Favorite node={node} {...rest}>
+                        {node.name}
+                      </Favorite>
+                    </Expandable>
+                  </div>
+                )}
+              </Tree>
+            )}
+          </FilteringContainer>
         </$StoryList>
         {(() => {
           if (!activeStory) return <>No story selected.</>
