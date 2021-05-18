@@ -28,6 +28,8 @@ const css_1 = require("@emotion/css");
 const react_1 = require("@emotion/react");
 const React = __importStar(require("react"));
 const styled_1 = __importDefault(require("@emotion/styled"));
+const react_stroller_1 = require("react-stroller");
+const react_resize_detector_1 = __importDefault(require("react-resize-detector"));
 const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
     const modules = modulesInput instanceof Array ? modulesInput : Object.values(modulesInput);
     const allModuleKeys = modules
@@ -79,19 +81,21 @@ const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, cla
     const iframeSrc = !!(activeStory === null || activeStory === void 0 ? void 0 : activeStory.useIframe) && (onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(activeStory));
     return (React.createElement(exports.$StoryBrowser, { asFullscreenOverlay: !!(layout === null || layout === void 0 ? void 0 : layout.asFullscreenOverlay), className: className },
         React.createElement(exports.$StoryBrowserInner, null,
-            React.createElement(exports.$StoryList, null, [...stories.entries()].map(([key, story]) => {
-                const storyUri = onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(story);
-                return (React.createElement(exports.$StoryListItem, { className: css_1.cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: (e) => {
-                        onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
-                        e.preventDefault();
-                    }, href: storyUri },
-                    React.createElement("small", null, story.kinds.map(csf_1.storyNameFromExport).join(' • ')),
-                    React.createElement("span", null, story.name)));
-            })),
+            React.createElement(react_resize_detector_1.default, { handleHeight: true, handleWidth: true }, ({ height, targetRef }) => (React.createElement(exports.$StoryList, { ref: targetRef },
+                React.createElement(react_stroller_1.StrollableContainer, { draggable: true, oppositePosition: true, scrollKey: height }, [...stories.entries()].map(([key, story]) => {
+                    const storyUri = onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(story);
+                    return (React.createElement(exports.$StoryListItem, { className: css_1.cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: (e) => {
+                            onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
+                            e.preventDefault();
+                        }, href: storyUri },
+                        React.createElement("small", null, story.kinds.map(csf_1.storyNameFromExport).join(' • ')),
+                        React.createElement("span", null, story.name)));
+                }))))),
             iframeSrc && React.createElement(exports.$StoryIFrame, { src: iframeSrc }),
             !iframeSrc && React.createElement(exports.RenderStory, { story: activeStory, context: context }))));
 };
 exports.StoryBrowser = StoryBrowser;
+const Bar = () => (React.createElement("div", { style: { width: '15px', height: '100%', backgroundColor: '#F99' } }));
 const RenderStory = ({ story, context = {} }) => (React.createElement(exports.$StoryRenderWrapper, null, (() => {
     if (!story)
         return React.createElement(React.Fragment, null);
@@ -153,6 +157,7 @@ exports.$StoryList = styled_1.default.section `
   color: #fffc;
   height: 100%;
   font-size: 0.75em;
+  position: relative;
 `;
 exports.$StoryBrowserInner = styled_1.default.div `
   display: flex;
