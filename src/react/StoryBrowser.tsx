@@ -3,6 +3,8 @@ import { cx } from '@emotion/css'
 import { css } from '@emotion/react'
 import * as React from 'react'
 import styled from '@emotion/styled'
+import { StrollableContainer } from 'react-stroller'
+import ReactResizeDetector from 'react-resize-detector'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
@@ -117,34 +119,48 @@ export const StoryBrowser: FC<
       className={className}
     >
       <$StoryBrowserInner>
-        <$StoryList>
-          {[...stories.entries()].map(([key, story]) => {
-            const storyUri = onStoryUri?.(story)
-
-            return (
-              <$StoryListItem
-                className={cx({ isActive: activeStoryId === key })}
-                key={`${key}${name}`}
-                onClick={(e) => {
-                  onActiveStoryIdChanged?.(key)
-                  e.preventDefault()
-                }}
-                href={storyUri}
+        <ReactResizeDetector handleHeight handleWidth>
+          {({ height, targetRef }) => (
+            <$StoryList ref={targetRef}>
+              <StrollableContainer
+                draggable
+                oppositePosition
+                scrollKey={height}
               >
-                <small>
-                  {story.kinds.map(storyNameFromExport).join(' • ')}
-                </small>
-                <span>{story.name}</span>
-              </$StoryListItem>
-            )
-          })}
-        </$StoryList>
+                {[...stories.entries()].map(([key, story]) => {
+                  const storyUri = onStoryUri?.(story)
+
+                  return (
+                    <$StoryListItem
+                      className={cx({ isActive: activeStoryId === key })}
+                      key={`${key}${name}`}
+                      onClick={(e) => {
+                        onActiveStoryIdChanged?.(key)
+                        e.preventDefault()
+                      }}
+                      href={storyUri}
+                    >
+                      <small>
+                        {story.kinds.map(storyNameFromExport).join(' • ')}
+                      </small>
+                      <span>{story.name}</span>
+                    </$StoryListItem>
+                  )
+                })}
+              </StrollableContainer>
+            </$StoryList>
+          )}
+        </ReactResizeDetector>
         {iframeSrc && <$StoryIFrame src={iframeSrc} />}
         {!iframeSrc && <RenderStory story={activeStory} context={context} />}
       </$StoryBrowserInner>
     </$StoryBrowser>
   )
 }
+
+const Bar = () => (
+  <div style={{ width: '15px', height: '100%', backgroundColor: '#F99' }} />
+)
 
 export const RenderStory: FC<{
   story?: StoryComponent
@@ -217,6 +233,7 @@ export const $StoryList = styled.section`
   color: #fffc;
   height: 100%;
   font-size: 0.75em;
+  position: relative;
 `
 
 export const $StoryBrowserInner = styled.div`
