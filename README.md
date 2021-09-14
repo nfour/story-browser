@@ -63,7 +63,7 @@ yarn makeStoryMap '**/*.stories.tsx' --output ./src/storyBrowser/storiesMap.ts
 ```bash
 git clone https://github.com/nfour/story-browser.git
 cd story-browser
-yarn
-yarn build
-yarn start
+pnpm i
+pnpm build
+pnpm start
 ```

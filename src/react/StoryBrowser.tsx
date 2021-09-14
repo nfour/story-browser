@@ -158,10 +158,6 @@ export const StoryBrowser: FC<
   )
 }
 
-const Bar = () => (
-  <div style={{ width: '15px', height: '100%', backgroundColor: '#F99' }} />
-)
-
 export const RenderStory: FC<{
   story?: StoryComponent
   context?: {}
