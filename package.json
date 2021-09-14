@@ -1,6 +1,6 @@
 {
   "name": "story-browser",
-  "version": "1.4.1",
+  "version": "2.1.0",
   "description": "A React component story browser as React components.",
   "module": "x/mjs",
   "bin": {
@@ -29,6 +29,8 @@
     "change-case": "^4.1.2",
     "fast-glob": "^3.2.5",
     "react-virtualized": "^9.22.3",
+    "react-resize-detector": "^6.7.1",
+    "react-stroller": "^1.8.0",
     "react-virtualized-tree": "^3.4.1",
     "yargs": "^16.2.0"
   },

@@ -1,7 +1,7 @@
 import * as React from 'react';
 export declare const useStoryBrowser: ({ modules: modulesInput, useIframe, }: {
     /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-    modules: (StoryModule | Promise<StoryModule>)[] | Record<string, StoryModule>;
+    modules: StoryModule[] | Record<string, StoryModule>;
     useIframe?: boolean | undefined;
 }) => {
     stories: StoryComponentMap;
@@ -17,7 +17,7 @@ declare type ExclusiveInputs = ModuleInputs | StoriesInputs;
 export declare const StoryBrowser: FC<{
     activeStoryId?: string;
     /** Use this to return a `src` url for an <iframe src={src} /> */
-    onIframeSrc?(story: StoryComponent): string;
+    onStoryUri?(story: StoryComponent): string;
     onActiveStoryIdChanged?(id: undefined | string): void;
     layout?: {
         /**
@@ -30,13 +30,13 @@ export declare const StoryBrowser: FC<{
     context?: {};
 } & ExclusiveInputs>;
 export declare const RenderStory: FC<{
-    story: StoryComponent;
+    story?: StoryComponent;
     context?: {};
 }>;
 export declare const $StoryListItem: import("@emotion/styled").StyledComponent<{
     theme?: import("@emotion/react").Theme | undefined;
     as?: React.ElementType<any> | undefined;
-}, React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, {}>;
+}, React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, {}>;
 export declare const $StoryRenderWrapper: import("@emotion/styled").StyledComponent<{
     theme?: import("@emotion/react").Theme | undefined;
     as?: React.ElementType<any> | undefined;

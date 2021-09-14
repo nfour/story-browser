@@ -2,37 +2,28 @@ import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import * as React from 'react'
 import styled from '@emotion/styled'
-import Tree, {
-  Expandable,
-  Favorite,
-  FilteringContainer,
-  Node,
-} from 'react-virtualized-tree'
-import 'react-virtualized-tree/styles.css'
+import { Node } from 'react-virtualized-tree'
+import 'react-virtualized/styles.css'
 import 'react-virtualized-tree/lib/main.css'
+import ReactResizeDetector from 'react-resize-detector'
+import { FilterableTree } from './FilterableTree'
+import { groupBy } from 'lodash'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
   useIframe = false,
 }: {
   /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: (StoryModule | Promise<StoryModule>)[] | Record<string, StoryModule>
+  modules: StoryModule[] | Record<string, StoryModule>
   useIframe?: boolean
 }) => {
-  const [modules, setModules] = React.useState<StoryModule[]>([])
+  const modules =
+    modulesInput instanceof Array ? modulesInput : Object.values(modulesInput)
 
   const allModuleKeys = modules
     .map((mod) => Object.keys(mod))
     .flat()
     .join()
-
-  React.useEffect(() => {
-    Promise.all(
-      modulesInput instanceof Array
-        ? modulesInput
-        : Object.values(modulesInput),
-    ).then((m) => setModules(m))
-  }, [modulesInput])
 
   const stories: StoryComponentMap = React.useMemo(
     () =>
@@ -84,7 +75,7 @@ export const StoryBrowser: FC<
   {
     activeStoryId?: string
     /** Use this to return a `src` url for an <iframe src={src} /> */
-    onIframeSrc?(story: StoryComponent): string
+    onStoryUri?(story: StoryComponent): string
     onActiveStoryIdChanged?(id: undefined | string): void
     layout?: {
       /**
@@ -102,7 +93,7 @@ export const StoryBrowser: FC<
   activeStoryId,
   className,
   layout,
-  onIframeSrc,
+  onStoryUri,
   ...input
 }) => {
   const stories =
@@ -123,28 +114,10 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
-  const [treeNodes, setTreeNodes] = React.useState<Node[]>(() => {
-    /** For components without a kind */
-    const unkindedKind = '*'
-    const items = [...stories.entries()]
-    const topLevelKinds = new Set([unkindedKind, ...items.map(([key, { kinds }]) => kinds[0]).flat()])
-
-    function createNode({ kinds, name, storyId}: StoryComponent) {
-      return {
-        id: storyId,
-        name: name,
-        children: items.filter(())
-      }
-    }
-
-    return [...topLevelKinds.values()].map((kind) => {
-      return {
-        id: kind,
-        name: kind,
-        children: items.filter(())
-      }
-    })
-  }
+  const [treeNodes, setTreeNodes] = React.useState<Node[]>(() =>
+    createTreeNodesFromStories({ stories: [...stories.values()] }),
+  )
+  const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
 
   return (
     <$StoryBrowser
@@ -152,65 +125,97 @@ export const StoryBrowser: FC<
       className={className}
     >
       <$StoryBrowserInner>
-        <$StoryList>
-          {/* {[...stories.entries()].map(([key, { name, kinds }]) => (
-            <$StoryListItem
-              className={cx({ isActive: activeStoryId === key })}
-              key={`${key}${name}`}
-              onClick={() => {
-                onActiveStoryIdChanged?.(key)
-              }}
-            >
-              <small>{kinds.map(storyNameFromExport).join(' • ')}</small>
-              <span>{name}</span>
-            </$StoryListItem>
-          ))} */}
-          <FilteringContainer
-            nodes={treeNodes}
-            indexSearch={(searchTerm) => ({ name }) => {
-              return (
-                name.toUpperCase().indexOf(searchTerm.toUpperCase().trim()) > -1
-              )
-            }}
-          >
-            {({ nodes }) => (
-              <Tree nodes={nodes} onChange={setTreeNodes}>
-                {({ style, node, ...rest }) => (
-                  <div style={style}>
-                    <Expandable node={node} {...rest}>
-                      <Favorite node={node} {...rest}>
-                        {node.name}
-                      </Favorite>
-                    </Expandable>
-                  </div>
-                )}
-              </Tree>
-            )}
-          </FilteringContainer>
-        </$StoryList>
-        {(() => {
-          if (!activeStory) return <>No story selected.</>
-          if (onIframeSrc && activeStory.useIframe) {
-            return <$StoryIFrame src={onIframeSrc(activeStory)} />
-          }
-
-          return <RenderStory story={activeStory} context={context} />
-        })()}
+        <ReactResizeDetector handleHeight handleWidth>
+          {({ height, targetRef }) => (
+            <$StoryList>
+              <$FilterableTree>
+                <FilterableTree
+                  nodes={treeNodes}
+                  onNodes={(n) => {
+                    console.log({ n })
+                    setTreeNodes(n)
+                  }}
+                  onSelect={(action) => {
+                    console.log(action)
+                  }}
+                />
+              </$FilterableTree>
+            </$StoryList>
+          )}
+        </ReactResizeDetector>
+        {iframeSrc && <$StoryIFrame src={iframeSrc} />}
+        {!iframeSrc && <RenderStory story={activeStory} context={context} />}
       </$StoryBrowserInner>
     </$StoryBrowser>
   )
 }
 
+const $FilterableTree = styled.div`
+  && {
+    &,
+    .tree-filter-container {
+      height: 100%;
+    }
+  }
+`
+
 export const RenderStory: FC<{
-  story: StoryComponent
+  story?: StoryComponent
   context?: {}
-}> = ({ story: { Story, storyId, name }, context = {} }) => (
+}> = ({ story, context = {} }) => (
   <$StoryRenderWrapper>
-    <Story {...context} />
+    {(() => {
+      if (!story) return <></>
+
+      return <story.Story {...context} />
+    })()}
   </$StoryRenderWrapper>
 )
 
-export const $StoryListItem = styled.div`
+function createTreeNodesFromStories({
+  stories,
+}: {
+  stories: StoryComponent[]
+}): Node[] {
+  /** For components without a kind */
+  const unkindedKind = '*'
+  const makeKindKey = (kinds: string[]) => kinds.join('.')
+  const storyGroups = groupBy(stories, (s) => makeKindKey(s.kinds))
+  const storyGroupKeys = [unkindedKind, ...Object.keys(storyGroups)]
+
+  function createNodes(kindKey: string): Node[] {
+    const childStories = storyGroups[kindKey] ?? []
+    const childStoryGroupKeys = storyGroupKeys.filter(
+      (k) => k !== kindKey && k.startsWith(kindKey),
+    )
+
+    const childrenNodes = childStories.map(({ name, storyId, kinds }) => {
+      const key = makeKindKey(kinds)
+
+      return {
+        id: storyId,
+        name: name,
+        // children: createNodes(key),
+      }
+    })
+
+    const childrenGroups = childStoryGroupKeys.map((k) => ({
+      id: k,
+      name: k,
+      children: createNodes(k),
+    }))
+
+    return [...childrenGroups, ...childrenNodes]
+  }
+
+  return storyGroupKeys.map((k) => ({
+    id: k,
+    name: k,
+    children: createNodes(k),
+  }))
+}
+
+export const $StoryListItem = styled.a`
   padding: 0.8em 1em;
   background: #aaa1;
   transition: all 0.1s ease;
@@ -221,10 +226,12 @@ export const $StoryListItem = styled.div`
   justify-content: space-between;
   flex-direction: column;
   flex-wrap: nowrap;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 
   &:hover {
     opacity: 0.9;
-    cursor: pointer;
   }
 
   &.isActive {
@@ -232,10 +239,6 @@ export const $StoryListItem = styled.div`
     border-left-color: #a1a1a1;
     z-index: 10;
     opacity: 1;
-
-    &:hover {
-      cursor: default;
-    }
   }
 
   span {
@@ -270,6 +273,7 @@ export const $StoryList = styled.section`
   color: #fffc;
   height: 100%;
   font-size: 0.75em;
+  position: relative;
 `
 
 export const $StoryBrowserInner = styled.div`

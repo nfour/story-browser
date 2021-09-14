@@ -37,12 +37,10 @@ const Root = () => {
                 onActiveStoryIdChanged={(story) =>
                   router.routes.storyBrowser.push({ story })
                 }
-                onIframeSrc={(story) => {
-                  /** @example "#/story/my-story--id" */
-                  return (
-                    '#' + router.routes.story.toPath({ story: story.storyId })
-                  )
-                }}
+                /** @example "#/story/my-story--id" */
+                onStoryUri={({ storyId }) =>
+                  `#${router.routes.story.toPath({ story: storyId })}`
+                }
                 layout={{
                   asFullscreenOverlay: true,
                 }}
@@ -60,7 +58,7 @@ const Root = () => {
             return (
               <div
                 className={css`
-                  outline: 2px dashed #cc3131;
+                  outline: 2px dashed #9b634d;
                   padding: 4em;
                 `}
               >
