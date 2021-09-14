@@ -9,16 +9,28 @@ import {
 import * as storyMap from './nesting/folder/STORY_MAP'
 import { XRoute, XRouter } from 'xroute'
 import { Observer } from 'mobx-react-lite'
+import { createMemoryHistory } from 'history'
 
 const Root = () => {
   const { stories } = useStoryBrowser({ modules: storyMap })
 
   const [router] = React.useState(
     () =>
-      new XRouter([
-        XRoute('storyBrowser', '/:story?', {} as { story?: string }),
-        XRoute('story', '/iframe/:story', {} as { story: string }),
-      ]),
+      new XRouter(
+        [
+          XRoute(
+            'storyBrowser',
+            '/:story?',
+            {} as { pathname: { story?: string }; search: {} },
+          ),
+          XRoute(
+            'story',
+            '/iframe/:story',
+            {} as { pathname: { story: string }; search: {} },
+          ),
+        ],
+        createMemoryHistory(),
+      ),
   )
 
   return (
@@ -33,13 +45,15 @@ const Root = () => {
             return (
               <StoryBrowser
                 stories={stories}
-                activeStoryId={router.routes.storyBrowser.params?.story}
+                activeStoryId={router.routes.storyBrowser.pathname?.story}
                 onActiveStoryIdChanged={(story) =>
-                  router.routes.storyBrowser.push({ story })
+                  router.routes.storyBrowser.push({ pathname: { story } })
                 }
                 /** @example "#/story/my-story--id" */
                 onStoryUri={({ storyId }) =>
-                  `#${router.routes.story.toPath({ story: storyId })}`
+                  `#${router.routes.story.toUri({
+                    pathname: { story: storyId },
+                  })}`
                 }
                 layout={{
                   asFullscreenOverlay: true,
@@ -49,7 +63,7 @@ const Root = () => {
           }
 
           if (router.routes.story.isActive) {
-            const storyId = router.routes.story.params!.story
+            const storyId = router.routes.story.pathname!.story
             const story = stories.get(storyId)!
 
             if (!story) return <></>
