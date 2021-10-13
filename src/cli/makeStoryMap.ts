@@ -53,11 +53,13 @@ export function pathsToModuleExports(paths: string[]) {
 
     names.add(name)
 
-    const importPath = `./${formatPath({
-      ...parsed,
-      base: undefined,
-      ext: undefined,
-    })}`
+    const importPath = toPosixPath(
+      `./${formatPath({
+        ...parsed,
+        base: undefined,
+        ext: undefined,
+      })}`,
+    )
 
     return { name, originalPath: path, importPath }
   })

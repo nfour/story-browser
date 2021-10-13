@@ -34,11 +34,11 @@ function pathsToModuleExports(paths) {
             return `${symbolName}_${i}`;
         })();
         names.add(name);
-        const importPath = `./${(0, path_1.format)({
+        const importPath = toPosixPath(`./${(0, path_1.format)({
             ...parsed,
             base: undefined,
             ext: undefined,
-        })}`;
+        })}`);
         return { name, originalPath: path, importPath };
     });
     return [

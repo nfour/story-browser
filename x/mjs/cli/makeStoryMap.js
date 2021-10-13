@@ -27,11 +27,11 @@ export function pathsToModuleExports(paths) {
             return `${symbolName}_${i}`;
         })();
         names.add(name);
-        const importPath = `./${formatPath({
+        const importPath = toPosixPath(`./${formatPath({
             ...parsed,
             base: undefined,
             ext: undefined,
-        })}`;
+        })}`);
         return { name, originalPath: path, importPath };
     });
     return [
