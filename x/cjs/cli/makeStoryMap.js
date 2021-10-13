@@ -8,13 +8,13 @@ const camel_case_1 = require("camel-case");
 const fast_glob_1 = __importDefault(require("fast-glob"));
 const path_1 = require("path");
 async function makeStoryMap({ patterns, outputPath, rootPath, }) {
-    const searchFrom = (0, path_1.resolve)(rootPath).split(path_1.sep).join(path_1.posix.sep);
-    const paths = await (0, fast_glob_1.default)(patterns, {
+    const searchFrom = (0, path_1.resolve)(rootPath);
+    const paths = (await (0, fast_glob_1.default)(patterns, {
         absolute: true,
         caseSensitiveMatch: false,
         ignore: ['**/node_modules/**'],
         cwd: searchFrom,
-    });
+    })).map(toPosixPath);
     const outputFilePath = (0, path_1.resolve)(rootPath, outputPath);
     const outputDir = (0, path_1.dirname)(outputFilePath);
     const importPaths = paths.map((path) => (0, path_1.relative)(outputDir, path));
@@ -50,3 +50,6 @@ function pathsToModuleExports(paths) {
     ].join('\n');
 }
 exports.pathsToModuleExports = pathsToModuleExports;
+function toPosixPath(fpath) {
+    return fpath.split(path_1.sep).join(path_1.posix.sep);
+}
