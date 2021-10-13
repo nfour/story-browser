@@ -14,8 +14,8 @@ const {
 } = Yargs(hideBin(process.argv)).command(
   'makeStoryMap <patterns...>',
   'Make a story map by matching glob patterns',
-  (y) => {
-    return y
+  (y) =>
+    y
       .option('output', {
         describe: 'The relative path to save output.',
         default: './storyMap.json',
@@ -35,8 +35,7 @@ const {
         describe: 'Hide all loggin so you can pipe the content to a file',
         default: false,
         type: 'boolean',
-      })
-  },
+      }),
 ).argv
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

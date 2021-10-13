@@ -1,8 +1,8 @@
 import { camelCase } from 'camel-case';
 import fastGlob from 'fast-glob';
-import { resolve, parse as parsePath, format as formatPath, dirname, relative, } from 'path';
+import { resolve, parse as parsePath, format as formatPath, dirname, relative, sep, posix, } from 'path';
 export async function makeStoryMap({ patterns, outputPath, rootPath, }) {
-    const searchFrom = resolve(rootPath);
+    const searchFrom = resolve(rootPath).split(sep).join(posix.sep);
     const paths = await fastGlob(patterns, {
         absolute: true,
         caseSensitiveMatch: false,

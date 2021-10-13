@@ -6,6 +6,8 @@ import {
   format as formatPath,
   dirname,
   relative,
+  sep,
+  posix,
 } from 'path'
 
 export async function makeStoryMap({
@@ -17,7 +19,7 @@ export async function makeStoryMap({
   outputPath: string
   rootPath: string
 }) {
-  const searchFrom = resolve(rootPath)
+  const searchFrom = resolve(rootPath).split(sep).join(posix.sep)
   const paths = await fastGlob(patterns, {
     absolute: true,
     caseSensitiveMatch: false,

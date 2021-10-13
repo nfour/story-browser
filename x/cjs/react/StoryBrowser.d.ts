@@ -1,4 +1,6 @@
 import * as React from 'react';
+import 'react-virtualized/styles.css';
+import 'react-virtualized-tree/lib/main.css';
 export declare const useStoryBrowser: ({ modules: modulesInput, useIframe, }: {
     /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
     modules: StoryModule[] | Record<string, StoryModule>;

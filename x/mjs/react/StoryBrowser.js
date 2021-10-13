@@ -1,10 +1,12 @@
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf';
-import { cx } from '@emotion/css';
 import { css } from '@emotion/react';
 import * as React from 'react';
 import styled from '@emotion/styled';
-import { StrollableContainer } from 'react-stroller';
+import 'react-virtualized/styles.css';
+import 'react-virtualized-tree/lib/main.css';
 import ReactResizeDetector from 'react-resize-detector';
+import { FilterableTree } from './FilterableTree';
+import { groupBy } from 'lodash';
 export const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
     const modules = modulesInput instanceof Array ? modulesInput : Object.values(modulesInput);
     const allModuleKeys = modules
@@ -52,28 +54,65 @@ export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStory
             return;
         onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(firstKey);
     }, [activeStoryId, storyKeys.join('')]);
+    const [treeNodes, setTreeNodes] = React.useState(() => createTreeNodesFromStories({ stories: [...stories.values()] }));
     const iframeSrc = !!(activeStory === null || activeStory === void 0 ? void 0 : activeStory.useIframe) && (onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(activeStory));
     return (React.createElement($StoryBrowser, { asFullscreenOverlay: !!(layout === null || layout === void 0 ? void 0 : layout.asFullscreenOverlay), className: className },
         React.createElement($StoryBrowserInner, null,
-            React.createElement(ReactResizeDetector, { handleHeight: true, handleWidth: true }, ({ height, targetRef }) => (React.createElement($StoryList, { ref: targetRef },
-                React.createElement(StrollableContainer, { draggable: true, oppositePosition: true, scrollKey: height }, [...stories.entries()].map(([key, story]) => {
-                    const storyUri = onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(story);
-                    return (React.createElement($StoryListItem, { className: cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: (e) => {
-                            onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
-                            e.preventDefault();
-                        }, href: storyUri },
-                        React.createElement("small", null, story.kinds.map(storyNameFromExport).join(' • ')),
-                        React.createElement("span", null, story.name)));
-                }))))),
+            React.createElement(ReactResizeDetector, { handleHeight: true, handleWidth: true }, ({ height, targetRef }) => (React.createElement($StoryList, null,
+                React.createElement($FilterableTree, null,
+                    React.createElement(FilterableTree, { nodes: treeNodes, onNodes: (n) => {
+                            console.log({ n });
+                            setTreeNodes(n);
+                        }, onSelect: (action) => {
+                            console.log(action);
+                        } }))))),
             iframeSrc && React.createElement($StoryIFrame, { src: iframeSrc }),
             !iframeSrc && React.createElement(RenderStory, { story: activeStory, context: context }))));
 };
-const Bar = () => (React.createElement("div", { style: { width: '15px', height: '100%', backgroundColor: '#F99' } }));
+const $FilterableTree = styled.div `
+  && {
+    &,
+    .tree-filter-container {
+      height: 100%;
+    }
+  }
+`;
 export const RenderStory = ({ story, context = {} }) => (React.createElement($StoryRenderWrapper, null, (() => {
     if (!story)
         return React.createElement(React.Fragment, null);
-    return React.createElement(story.Story, Object.assign({}, context));
+    return React.createElement(story.Story, { ...context });
 })()));
+function createTreeNodesFromStories({ stories, }) {
+    /** For components without a kind */
+    const unkindedKind = '*';
+    const makeKindKey = (kinds) => kinds.join('.');
+    const storyGroups = groupBy(stories, (s) => makeKindKey(s.kinds));
+    const storyGroupKeys = [unkindedKind, ...Object.keys(storyGroups)];
+    function createNodes(kindKey) {
+        var _a;
+        const childStories = (_a = storyGroups[kindKey]) !== null && _a !== void 0 ? _a : [];
+        const childStoryGroupKeys = storyGroupKeys.filter((k) => k !== kindKey && k.startsWith(kindKey));
+        const childrenNodes = childStories.map(({ name, storyId, kinds }) => {
+            const key = makeKindKey(kinds);
+            return {
+                id: storyId,
+                name: name,
+                // children: createNodes(key),
+            };
+        });
+        const childrenGroups = childStoryGroupKeys.map((k) => ({
+            id: k,
+            name: k,
+            children: createNodes(k),
+        }));
+        return [...childrenGroups, ...childrenNodes];
+    }
+    return storyGroupKeys.map((k) => ({
+        id: k,
+        name: k,
+        children: createNodes(k),
+    }));
+}
 export const $StoryListItem = styled.a `
   padding: 0.8em 1em;
   background: #aaa1;

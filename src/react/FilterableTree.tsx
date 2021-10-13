@@ -23,11 +23,8 @@ export const FilterableTree = ({
     <$TreeContainer>
       <FilteringContainer
         nodes={nodes}
-        indexSearch={(searchTerm) => ({ name }) => {
-          return (
-            name.toUpperCase().indexOf(searchTerm.toUpperCase().trim()) > -1
-          )
-        }}
+        indexSearch={(searchTerm) => ({ name }) =>
+          name.toUpperCase().indexOf(searchTerm.toUpperCase().trim()) > -1}
       >
         {(p) => (
           <Tree nodes={p.nodes} onChange={onNodes} {...{ className }}>
