@@ -2,16 +2,18 @@ import { camelCase } from 'camel-case';
 import fastGlob from 'fast-glob';
 import { resolve, parse as parsePath, format as formatPath, dirname, relative, sep, posix, } from 'path';
 export async function makeStoryMap({ patterns, outputPath, rootPath, }) {
-    const searchFrom = resolve(rootPath).split(sep).join(posix.sep);
-    const paths = await fastGlob(patterns, {
+    const searchFrom = resolve(rootPath);
+    const paths = (await fastGlob(patterns, {
         absolute: true,
         caseSensitiveMatch: false,
         ignore: ['**/node_modules/**'],
         cwd: searchFrom,
-    });
+    })).map(toPosixPath);
     const outputFilePath = resolve(rootPath, outputPath);
     const outputDir = dirname(outputFilePath);
-    const importPaths = paths.map((path) => relative(outputDir, path));
+    const importPaths = paths
+        .map((path) => relative(outputDir, path))
+        .map(toPosixPath);
     return { paths, searchFrom, outputFilePath, importPaths };
 }
 export function pathsToModuleExports(paths) {
@@ -25,11 +27,11 @@ export function pathsToModuleExports(paths) {
             return `${symbolName}_${i}`;
         })();
         names.add(name);
-        const importPath = `./${formatPath({
+        const importPath = toPosixPath(`./${formatPath({
             ...parsed,
             base: undefined,
             ext: undefined,
-        })}`;
+        })}`);
         return { name, originalPath: path, importPath };
     });
     return [
@@ -41,4 +43,7 @@ export function pathsToModuleExports(paths) {
         imports.map(({ name }) => `  ${name},`).join('\n'),
         '}',
     ].join('\n');
+}
+function toPosixPath(fpath) {
+    return fpath.split(sep).join(posix.sep);
 }

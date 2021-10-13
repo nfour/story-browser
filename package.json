@@ -1,6 +1,6 @@
 {
   "name": "story-browser",
-  "version": "2.2.0",
+  "version": "2.3.2",
   "description": "A React component story browser as React components.",
   "module": "x/mjs",
   "bin": {
@@ -16,7 +16,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:clean": "rm -rf x/*",
-    "cli:makeStoryMap": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx' --output testProject/nesting/folder/STORY_MAP.ts",
+    "test": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx' --output testProject/nesting/folder/STORY_MAP.ts",
     "start": "snowpack dev",
     "npmRelease": "yarn build && cd ./x && npm publish"
   },

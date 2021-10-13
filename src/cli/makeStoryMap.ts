@@ -19,17 +19,21 @@ export async function makeStoryMap({
   outputPath: string
   rootPath: string
 }) {
-  const searchFrom = resolve(rootPath).split(sep).join(posix.sep)
-  const paths = await fastGlob(patterns, {
-    absolute: true,
-    caseSensitiveMatch: false,
-    ignore: ['**/node_modules/**'],
-    cwd: searchFrom,
-  })
+  const searchFrom = resolve(rootPath)
+  const paths = (
+    await fastGlob(patterns, {
+      absolute: true,
+      caseSensitiveMatch: false,
+      ignore: ['**/node_modules/**'],
+      cwd: searchFrom,
+    })
+  ).map(toPosixPath)
 
   const outputFilePath = resolve(rootPath, outputPath)
   const outputDir = dirname(outputFilePath)
-  const importPaths = paths.map((path) => relative(outputDir, path))
+  const importPaths = paths
+    .map((path) => relative(outputDir, path))
+    .map(toPosixPath)
 
   return { paths, searchFrom, outputFilePath, importPaths }
 }
@@ -49,11 +53,13 @@ export function pathsToModuleExports(paths: string[]) {
 
     names.add(name)
 
-    const importPath = `./${formatPath({
-      ...parsed,
-      base: undefined,
-      ext: undefined,
-    })}`
+    const importPath = toPosixPath(
+      `./${formatPath({
+        ...parsed,
+        base: undefined,
+        ext: undefined,
+      })}`,
+    )
 
     return { name, originalPath: path, importPath }
   })
@@ -67,4 +73,8 @@ export function pathsToModuleExports(paths: string[]) {
     imports.map(({ name }) => `  ${name},`).join('\n'),
     '}',
   ].join('\n')
+}
+
+function toPosixPath(fpath: string) {
+  return fpath.split(sep).join(posix.sep)
 }
