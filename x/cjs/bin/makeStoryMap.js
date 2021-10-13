@@ -8,7 +8,7 @@ const fs_1 = require("fs");
 const yargs_1 = __importDefault(require("yargs"));
 const helpers_1 = require("yargs/helpers");
 const makeStoryMap_1 = require("../cli/makeStoryMap");
-const { dryRun: IS_DRY_RUN, output: OUTPUT = './storyMap.js', from: FROM = process.cwd(), stream: IS_STREAM, _: PATTERNS, } = yargs_1.default(helpers_1.hideBin(process.argv)).command('makeStoryMap <patterns...>', 'Make a story map by matching glob patterns', (y) => {
+const { dryRun: IS_DRY_RUN, output: OUTPUT = './storyMap.js', from: FROM = process.cwd(), stream: IS_STREAM, _: PATTERNS, } = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv)).command('makeStoryMap <patterns...>', 'Make a story map by matching glob patterns', (y) => {
     return y
         .option('output', {
         describe: 'The relative path to save output.',
@@ -37,15 +37,15 @@ void (async () => {
     log(`\nMaking story map...\n`);
     if (IS_DRY_RUN)
         log('Dry run.');
-    const { outputFilePath, importPaths } = await makeStoryMap_1.makeStoryMap({
+    const { outputFilePath, importPaths } = await (0, makeStoryMap_1.makeStoryMap)({
         outputPath: OUTPUT,
         patterns: PATTERNS,
         rootPath: FROM,
     });
-    const text = makeStoryMap_1.pathsToModuleExports(importPaths);
+    const text = (0, makeStoryMap_1.pathsToModuleExports)(importPaths);
     log(`Saving to: ${outputFilePath}`);
     if (!IS_DRY_RUN) {
-        fs_1.writeFileSync(outputFilePath, text, 'utf8');
+        (0, fs_1.writeFileSync)(outputFilePath, text, 'utf8');
         log('Saved.');
     }
     log('');

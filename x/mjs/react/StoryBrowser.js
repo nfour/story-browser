@@ -68,11 +68,10 @@ export const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStory
             iframeSrc && React.createElement($StoryIFrame, { src: iframeSrc }),
             !iframeSrc && React.createElement(RenderStory, { story: activeStory, context: context }))));
 };
-const Bar = () => (React.createElement("div", { style: { width: '15px', height: '100%', backgroundColor: '#F99' } }));
 export const RenderStory = ({ story, context = {} }) => (React.createElement($StoryRenderWrapper, null, (() => {
     if (!story)
         return React.createElement(React.Fragment, null);
-    return React.createElement(story.Story, Object.assign({}, context));
+    return React.createElement(story.Story, { ...context });
 })()));
 export const $StoryListItem = styled.a `
   padding: 0.8em 1em;

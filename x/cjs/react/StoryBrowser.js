@@ -44,7 +44,7 @@ const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
         for (const [key, val] of Object.entries(exportMembers)) {
             if (typeof val === 'function') {
                 const Story = val;
-                const id = csf_1.toId(kinds.join('-'), key);
+                const id = (0, csf_1.toId)(kinds.join('-'), key);
                 const isIframed = (_d = (_c = Story.useIframe) !== null && _c !== void 0 ? _c : meta.useIframe) !== null && _d !== void 0 ? _d : useIframe;
                 components.push([
                     id,
@@ -52,7 +52,7 @@ const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
                         kinds,
                         Story,
                         storyId: id,
-                        name: csf_1.storyNameFromExport(key),
+                        name: (0, csf_1.storyNameFromExport)(key),
                         useIframe: isIframed,
                     },
                 ]);
@@ -66,7 +66,7 @@ const useStoryBrowser = ({ modules: modulesInput, useIframe = false, }) => {
 exports.useStoryBrowser = useStoryBrowser;
 const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, className, layout, onStoryUri, ...input }) => {
     const stories = 'modules' in input
-        ? exports.useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
+        ? (0, exports.useStoryBrowser)({ modules: input.modules }).stories // eslint-disable-line
         : input.stories;
     const activeStory = stories.get(activeStoryId);
     const storyKeys = [...stories.keys()];
@@ -84,7 +84,7 @@ const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, cla
             React.createElement(react_resize_detector_1.default, { handleHeight: true, handleWidth: true }, ({ height, targetRef }) => (React.createElement(exports.$StoryList, { ref: targetRef },
                 React.createElement(react_stroller_1.StrollableContainer, { draggable: true, oppositePosition: true, scrollKey: height }, [...stories.entries()].map(([key, story]) => {
                     const storyUri = onStoryUri === null || onStoryUri === void 0 ? void 0 : onStoryUri(story);
-                    return (React.createElement(exports.$StoryListItem, { className: css_1.cx({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: (e) => {
+                    return (React.createElement(exports.$StoryListItem, { className: (0, css_1.cx)({ isActive: activeStoryId === key }), key: `${key}${name}`, onClick: (e) => {
                             onActiveStoryIdChanged === null || onActiveStoryIdChanged === void 0 ? void 0 : onActiveStoryIdChanged(key);
                             e.preventDefault();
                         }, href: storyUri },
@@ -95,11 +95,10 @@ const StoryBrowser = ({ context = {}, onActiveStoryIdChanged, activeStoryId, cla
             !iframeSrc && React.createElement(exports.RenderStory, { story: activeStory, context: context }))));
 };
 exports.StoryBrowser = StoryBrowser;
-const Bar = () => (React.createElement("div", { style: { width: '15px', height: '100%', backgroundColor: '#F99' } }));
 const RenderStory = ({ story, context = {} }) => (React.createElement(exports.$StoryRenderWrapper, null, (() => {
     if (!story)
         return React.createElement(React.Fragment, null);
-    return React.createElement(story.Story, Object.assign({}, context));
+    return React.createElement(story.Story, { ...context });
 })()));
 exports.RenderStory = RenderStory;
 exports.$StoryListItem = styled_1.default.a `
@@ -171,7 +170,7 @@ exports.$StoryBrowser = styled_1.default.main `
   background: #222;
 
   ${({ asFullscreenOverlay }) => asFullscreenOverlay
-    ? react_1.css `
+    ? (0, react_1.css) `
           position: fixed;
           top: 0;
           left: 0;
