@@ -11,7 +11,9 @@ export async function makeStoryMap({ patterns, outputPath, rootPath, }) {
     })).map(toPosixPath);
     const outputFilePath = resolve(rootPath, outputPath);
     const outputDir = dirname(outputFilePath);
-    const importPaths = paths.map((path) => relative(outputDir, path));
+    const importPaths = paths
+        .map((path) => relative(outputDir, path))
+        .map(toPosixPath);
     return { paths, searchFrom, outputFilePath, importPaths };
 }
 export function pathsToModuleExports(paths) {

@@ -17,7 +17,9 @@ async function makeStoryMap({ patterns, outputPath, rootPath, }) {
     })).map(toPosixPath);
     const outputFilePath = (0, path_1.resolve)(rootPath, outputPath);
     const outputDir = (0, path_1.dirname)(outputFilePath);
-    const importPaths = paths.map((path) => (0, path_1.relative)(outputDir, path));
+    const importPaths = paths
+        .map((path) => (0, path_1.relative)(outputDir, path))
+        .map(toPosixPath);
     return { paths, searchFrom, outputFilePath, importPaths };
 }
 exports.makeStoryMap = makeStoryMap;

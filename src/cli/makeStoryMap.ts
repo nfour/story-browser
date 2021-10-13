@@ -31,7 +31,9 @@ export async function makeStoryMap({
 
   const outputFilePath = resolve(rootPath, outputPath)
   const outputDir = dirname(outputFilePath)
-  const importPaths = paths.map((path) => relative(outputDir, path))
+  const importPaths = paths
+    .map((path) => relative(outputDir, path))
+    .map(toPosixPath)
 
   return { paths, searchFrom, outputFilePath, importPaths }
 }
