@@ -2,9 +2,6 @@ import React, { useMemo, useEffect, useState, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Node } from 'react-virtualized-tree'
-import 'react-virtualized/styles.css'
-import 'react-virtualized-tree/lib/main.css'
 import ReactResizeDetector from 'react-resize-detector'
 import { FilterableTree } from './FilterableTree'
 import { groupBy } from 'lodash'
@@ -176,14 +173,14 @@ function createTreeNodesFromStories({
   stories,
 }: {
   stories: StoryComponent[]
-}): Node[] {
+}): any[] {
   /** For components without a kind */
   const unkindedKind = '*'
   const makeKindKey = (kinds: string[]) => kinds.join('.')
   const storyGroups = groupBy(stories, (s) => makeKindKey(s.kinds))
   const storyGroupKeys = [unkindedKind, ...Object.keys(storyGroups)]
 
-  function createNodes(kindKey: string): Node[] {
+  function createNodes(kindKey: string): any[] {
     const childStories = storyGroups[kindKey] ?? []
     const childStoryGroupKeys = storyGroupKeys.filter(
       (k) => k !== kindKey && k.startsWith(kindKey),

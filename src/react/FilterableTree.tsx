@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tree } from 'antd'
+import Tree from 'antd/es/tree'
 import styled from '@emotion/styled'
 
 export const FilterableTree = ({
