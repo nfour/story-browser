@@ -1,5 +1,6 @@
+import React, { useState } from 'react'
+import 'vite/types/importMeta.d'
 import { css } from '@emotion/css'
-import * as React from 'react'
 import { render } from 'react-dom'
 import {
   RenderStory,
@@ -14,7 +15,7 @@ import { createMemoryHistory } from 'history'
 const Root = () => {
   const { stories } = useStoryBrowser({ modules: storyMap })
 
-  const [router] = React.useState(
+  const [router] = useState(
     () =>
       new XRouter(
         [

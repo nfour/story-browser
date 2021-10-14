@@ -1,7 +1,7 @@
-import * as React from 'react'
+import React from 'react'
 
 export default {
-  title: 'TestProject',
+  title: 'TestProject22',
 }
 
 export const test_story_1 = () => {

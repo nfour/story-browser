@@ -1,11 +1,5 @@
-import * as React from 'react'
-import Tree, {
-  FilteringContainer,
-  Node,
-  NodeAction,
-  selectors,
-  FlattenedNode,
-} from 'react-virtualized-tree'
+import React from 'react'
+import { Tree } from 'antd'
 import styled from '@emotion/styled'
 
 export const FilterableTree = ({
@@ -15,69 +9,49 @@ export const FilterableTree = ({
   className,
 }: {
   className?: string
-  nodes: Node[]
-  onNodes(nodes: Node[]): void
-  onSelect(action: NodeAction): void
+  nodes: any[]
+  onNodes(nodes: any[]): void
+  onSelect(action: any): void
 }) => {
   return (
     <$TreeContainer>
-      <FilteringContainer
-        nodes={nodes}
-        indexSearch={(searchTerm) => ({ name }) =>
-          name.toUpperCase().indexOf(searchTerm.toUpperCase().trim()) > -1}
-      >
-        {(p) => (
-          <Tree nodes={p.nodes} onChange={onNodes} {...{ className }}>
-            {({ style, node, ...rest }) => (
-              <div style={style}>
-                <ItemRenderer
-                  node={node}
-                  {...rest}
-                  onChange={(a) => {
-                    rest.onChange(a)
-                    onSelect(a)
-                  }}
-                >
-                  {node.name}
-                </ItemRenderer>
-              </div>
-            )}
-          </Tree>
-        )}
-      </FilteringContainer>
+      <Tree
+        treeData={[
+          {
+            title: 'parent 1',
+            key: '0-0',
+            children: [
+              {
+                title: 'parent 1-0',
+                key: '0-0-0',
+                disabled: true,
+                children: [
+                  {
+                    title: 'leaf',
+                    key: '0-0-0-0',
+                    disableCheckbox: true,
+                  },
+                  {
+                    title: 'leaf',
+                    key: '0-0-0-1',
+                  },
+                ],
+              },
+              {
+                title: 'parent 1-1',
+                key: '0-0-1',
+                children: [
+                  {
+                    title: <span style={{ color: '#1890ff' }}>sss</span>,
+                    key: '0-0-1-0',
+                  },
+                ],
+              },
+            ],
+          },
+        ]}
+      />
     </$TreeContainer>
-  )
-}
-
-const ItemRenderer = ({
-  node,
-  onChange,
-}: {
-  onChange(nodes: NodeAction): void
-  node: FlattenedNode
-  children: React.ReactNode
-  index: number
-}) => {
-  const { hasChildren, isExpanded } = selectors.getNodeRenderOptions(node)
-
-  const select = () =>
-    onChange({
-      ...selectors.updateNode(node, { expanded: !isExpanded }),
-    })
-
-  return (
-    <>
-      <span onClick={select}>
-        {hasChildren ? (
-          <>
-            <button onClick={select}>--</button>
-            {node.name}
-          </>
-        ) : (
-          <>{node.name}</>
-        )}
-      </span>
-    </>
   )
 }
 

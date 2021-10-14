@@ -1,6 +1,6 @@
+import React, { useMemo, useEffect, useState, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
-import * as React from 'react'
 import styled from '@emotion/styled'
 import { Node } from 'react-virtualized-tree'
 import 'react-virtualized/styles.css'
@@ -25,7 +25,7 @@ export const useStoryBrowser = ({
     .flat()
     .join()
 
-  const stories: StoryComponentMap = React.useMemo(
+  const stories: StoryComponentMap = useMemo(
     () =>
       new Map(
         modules
@@ -104,7 +104,7 @@ export const StoryBrowser: FC<
   const activeStory = stories.get(activeStoryId!)
   const storyKeys = [...stories.keys()]
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeStory) return
 
     const firstKey = storyKeys[0]
@@ -114,7 +114,7 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
-  const [treeNodes, setTreeNodes] = React.useState<Node[]>(() =>
+  const [treeNodes, setTreeNodes] = useState<Node[]>(() =>
     createTreeNodesFromStories({ stories: [...stories.values()] }),
   )
   const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
@@ -130,7 +130,7 @@ export const StoryBrowser: FC<
             <$StoryList>
               <$FilterableTree>
                 <FilterableTree
-                  nodes={treeNodes}
+                  nodes={[]}
                   onNodes={(n) => {
                     console.log({ n })
                     setTreeNodes(n)
@@ -325,4 +325,4 @@ export type StoryComponentMap = Map<StoryComponent['storyId'], StoryComponent>
 export type FC<P extends {} = {}> = (p: P) => JSX.Element
 
 /** Function JSX component, with children */
-export type FCC<P = {}> = (p: P & { children: React.ReactNode }) => JSX.Element
+export type FCC<P = {}> = (p: P & { children: ReactNode }) => JSX.Element

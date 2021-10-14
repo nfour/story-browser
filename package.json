@@ -12,20 +12,24 @@
     "x/*"
   ],
   "scripts": {
-    "build": "yarn build:clean; yarn build:cjs; yarn build:mjs",
+    "build": "pnpm build:clean; pnpm build:cjs; pnpm build:mjs",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:clean": "rm -rf x/*",
     "test": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx' --output testProject/nesting/folder/STORY_MAP.ts",
-    "start": "snowpack dev",
-    "npmRelease": "yarn build && cd ./x && npm publish"
+    "start": "vite",
+    "dev": "pnpm start"
   },
   "dependencies": {
     "@componentdriven/csf": "^0.0.2-alpha.0",
     "@emotion/css": "^11.1.3",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
+    "@mui/icons-material": "^5.0.3",
+    "@mui/lab": "^5.0.0-alpha.50",
+    "@mui/material": "^5.0.3",
     "@types/lodash": "^4.14.172",
+    "antd": "^4.16.13",
     "change-case": "^4.1.2",
     "fast-glob": "^3.2.5",
     "lodash": "^4.17.21",
@@ -43,13 +47,11 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
     "@emotion/babel-preset-css-prop": "^11.2.0",
-    "@snowpack/plugin-babel": "^2.1.6",
-    "@snowpack/plugin-typescript": "^1.2.1",
     "@types/node": "^14.14.37",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.2",
-    "@types/snowpack-env": "^2.3.3",
     "@types/yargs": "^16.0.1",
+    "@vitejs/plugin-react-refresh": "^1.3.6",
     "eslint-config-nfour": "^1.3.0",
     "eslint-plugin-only-warn": "1.0.3",
     "history": "^5.0.0",
@@ -57,9 +59,9 @@
     "mobx-react-lite": "^3.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "snowpack": "^3.8.8",
     "typescript": "^4.4.3",
-    "xroute": "^6.0.1"
+    "vite": "^2.6.7",
+    "xroute": "^6.1.0"
   },
   "resolutions": {
     "workerpool": "6.1.0"

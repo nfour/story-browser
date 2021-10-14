@@ -1,4 +1,4 @@
-import { camelCase } from 'camel-case'
+import { camelCase } from 'change-case'
 import fastGlob from 'fast-glob'
 import {
   resolve,
