@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default {
-  title: 'TestProject',
+  title: 'Test Project',
 }
 
 export const test_story_1 = () => {

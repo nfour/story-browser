@@ -44,6 +44,7 @@ const Root = () => {
           if (router.routes.storyBrowser.isActive) {
             return (
               <StoryBrowser
+                theme="dark"
                 stories={stories}
                 activeStoryId={router.routes.storyBrowser.pathname?.story}
                 onActiveStoryIdChanged={(story) =>

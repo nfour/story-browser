@@ -1,10 +1,7 @@
-import {
-  TreeNode,
-  TreeNodeBranch,
-  TreeNodeLeaf
-} from './FilterableTree'
-import { groupBy, last, uniq } from 'lodash'
+import { TreeNode, TreeNodeBranch, TreeNodeLeaf } from './FilterableTree'
+import { last, uniq } from 'lodash'
 import { StoryComponent } from './StoryBrowser'
+import { sentenceCase } from 'change-case'
 
 export function createTreeNodesFromStories({
   stories,
@@ -16,33 +13,32 @@ export function createTreeNodesFromStories({
   const makePath = (kinds: string[]) => kinds.join(delimiter)
   const branchPaths = uniq(
     stories
-      .map((story) => story.kinds.reduce((prev, curr) => {
-        return [...prev, makePath([...prev, curr])]
-      }, [] as string[])
+      .map((story) =>
+        story.kinds.reduce((prev, curr) => {
+          return [...prev, makePath([...prev, curr])]
+        }, [] as string[]),
       )
-      .flat()
+      .flat(),
   )
 
   const rootBranchPaths = uniq(stories.map((story) => story.kinds[0]))
-  const storyGroups = groupBy(stories, (s) => makePath(s.kinds))
 
   function makeBranchNode(parentPath: string): TreeNode {
     const childStoriesAtPath = stories.filter(
-      (s) => makePath(s.kinds) === parentPath
+      (s) => makePath(s.kinds) === parentPath,
     )
 
     const childBranchesAtPath = branchPaths
       .filter((p) => makePath(p.split(delimiter).slice(0, -1)) === parentPath)
       .map((p) => makeBranchNode(p))
 
-    const name = last(parentPath.split(delimiter))!
+    const name = sentenceCase(last(parentPath.split(delimiter))!)
 
     function makeChildNode(story: StoryComponent) {
       return {
+        kind: 'leaf',
         name: story.name,
         id: story.storyId,
-        isSelected: false,
-        kind: 'leaf',
       } as TreeNodeLeaf
     }
 
@@ -50,11 +46,11 @@ export function createTreeNodesFromStories({
       kind: 'branch',
       id: parentPath,
       isOpen: true,
-      name,
       nodes: [
         ...childBranchesAtPath,
         ...childStoriesAtPath.map((s) => makeChildNode(s)),
       ],
+      name,
     }
 
     return node

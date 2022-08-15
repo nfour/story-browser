@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default {
-  title: 'TestProject22/NestedUnder',
+  title: 'Test Project 22/Nested Under',
 }
 
 export const nested_test_story_1 = () => {

@@ -2,7 +2,7 @@ import { useMemo, useEffect, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FilterableTree } from './FilterableTree'
+import { FilterableTree, FilterableTreeClasses } from './FilterableTree'
 import { createTreeNodesFromStories } from './createTreeNodesFromStories'
 
 export const useStoryBrowser = ({
@@ -69,6 +69,7 @@ type ExclusiveInputs = ModuleInputs | StoriesInputs
 
 export const StoryBrowser: FC<
   {
+    theme?: 'light' | 'dark'
     activeStoryId?: string
     /** Use this to return a `src` url for an <iframe src={src} /> */
     onStoryUri?(story: StoryComponent): string
@@ -90,6 +91,7 @@ export const StoryBrowser: FC<
   className,
   layout,
   onStoryUri,
+  theme = 'dark',
   ...input
 }) => {
   const stories =
@@ -119,20 +121,22 @@ export const StoryBrowser: FC<
 
   return (
     <$StoryBrowser
+      colorScheme={theme}
       asFullscreenOverlay={!!layout?.asFullscreenOverlay}
       className={className}
     >
       <$StoryBrowserInner>
-        <$StoryList>
-          <$FilterableTree
-            nodes={treeNodes}
-            onSelect={(node) => {
-              onActiveStoryIdChanged?.(node?.id)
-            }}
-          />
-        </$StoryList>
+        <$FilterableTree
+          nodes={treeNodes}
+          selectedId={activeStoryId}
+          onSelect={(node) => {
+            onActiveStoryIdChanged?.(node?.id)
+          }}
+        />
         {iframeSrc ? (
-          <$StoryIFrame src={iframeSrc} />
+          <$StoryRenderWrapper>
+            <$StoryIFrame src={iframeSrc} />
+          </$StoryRenderWrapper>
         ) : (
           <RenderStory story={activeStory} context={context} />
         )}
@@ -140,8 +144,6 @@ export const StoryBrowser: FC<
     </$StoryBrowser>
   )
 }
-
-const $FilterableTree = styled(FilterableTree)``
 
 export const RenderStory: FC<{
   story?: StoryComponent
@@ -156,78 +158,99 @@ export const RenderStory: FC<{
   </$StoryRenderWrapper>
 )
 
-export const $StoryListItem = styled.a`
-  padding: 0.8em 1em;
-  background: #aaa1;
-  transition: all 0.1s ease;
-  opacity: 0.5;
-  border-left: 4px solid transparent;
-  box-shadow: 0 1px 1px 0 #0008;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  cursor: pointer;
-  color: inherit;
-  text-decoration: none;
+const $FilterableTree = styled(FilterableTree)`
+  line-height: 1.75em;
+  box-shadow: inset -10px 0 10px var(--sb-sidebar-shadow),
+    inset -1px 0 0 1px var(--sb-sidebar-shadow);
+  overflow: auto;
+  font-size: 0.8em;
+  color: var(--sb-sidebar-fg);
+  background: var(--sb-sidebar-bg);
 
-  &:hover {
-    opacity: 0.9;
+  padding: 1em 1.5em 1em 0em;
+  max-width: 250px;
+  width: auto;
+
+  &,
+  * {
+    box-sizing: border-box;
   }
 
-  &.isActive {
-    box-shadow: 0 2px 2px 1px #0004;
-    border-left-color: #a1a1a1;
-    z-index: 10;
-    opacity: 1;
+  .${FilterableTreeClasses.NodeBranch} {
+    > .${FilterableTreeClasses.NodeTitle} {
+      font-size: 1.1em;
+      font-weight: 600;
+    }
   }
 
-  span {
-    padding-left: 2em;
-    align-self: flex-end;
-    font-weight: 600;
-  }
+  && {
+    .${FilterableTreeClasses.NodeLeaf} {
+      transition: all 0.1s ease;
 
-  small {
-    opacity: 0.8;
-    font-size: 0.85em;
-    align-self: flex-start;
-    margin-bottom: 5px;
-    margin-top: -2.5px;
+      > .${FilterableTreeClasses.NodeTitle} {
+        font-size: 1em;
+      }
+
+      &.${FilterableTreeClasses.NodeLeafSelected}
+        .${FilterableTreeClasses.NodeTitle} {
+        background: var(--sb-sidebar-selected-bg);
+        color: var(--sb-sidebar-selected-fg);
+        border-radius: 3px;
+        text-decoration: none;
+      }
+    }
   }
 `
 
-export const $StoryRenderWrapper = styled.main`
+const $StoryRenderWrapper = styled.main`
   height: 100%;
   width: 100%;
-
+  padding: 1em;
   flex-grow: 1;
+  background: var(--sb-content-bg);
+  color: var(--sb-content-fg);
 `
 
-export const $StoryIFrame = styled.iframe`
+const $StoryIFrame = styled.iframe`
   width: 100%;
   height: 100%;
   border: 0;
+  background: #fff;
+  color: black;
 `
 
-export const $StoryList = styled.section`
-  color: #fffc;
-  height: 100%;
-  font-size: 0.75em;
-  position: relative;
-  max-width: 200px;
-  overflow: auto;
-`
-
-export const $StoryBrowserInner = styled.div`
+const $StoryBrowserInner = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
 `
 
-export const $StoryBrowser = styled.main<{ asFullscreenOverlay: boolean }>`
+const $StoryBrowser = styled.main<{
+  asFullscreenOverlay: boolean
+  colorScheme: 'light' | 'dark'
+}>`
   width: 100%;
   height: 100%;
+  ${({ colorScheme }) =>
+    colorScheme === 'dark'
+      ? css`
+          --sb-sidebar-bg: #1f1f1f;
+          --sb-sidebar-fg: #9b9b9b;
+          --sb-sidebar-shadow: rgba(0, 0, 0, 0.15);
+          --sb-sidebar-selected-bg: #ffffffdd;
+          --sb-sidebar-selected-fg: black;
+          --sb-content-bg: #1f1f1f;
+          --sb-content-fg: #ddd;
+        `
+      : css`
+          --sb-sidebar-bg: #f1f1f1;
+          --sb-sidebar-fg: #252525;
+          --sb-sidebar-shadow: rgba(0, 0, 0, 0.05);
+          --sb-sidebar-selected-bg: #2b2b2bdd;
+          --sb-sidebar-selected-fg: #ededed;
+          --sb-content-bg: #ffffff;
+          --sb-content-fg: #000000;
+        `}
 
   background: #222;
 
