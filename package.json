@@ -5,23 +5,23 @@
   "bin": {
     "makeStoryMap": "./x/cjs/bin/makeStoryMap.js"
   },
-  "main": "./x/story-browser.cjs.js",
-  "module": "./x/story-browser.es.js",
-  "types": "./x/index.d.ts",
+  "main": "./x/cjs/react",
+  "module": "./x/mjs/react",
+  "types": "./x/cjs/react/index.d.ts",
   "exports": {
     ".": {
-      "import": "./x/story-browser.es.js",
-      "require": "./x/story-browser.cjs.js"
+      "import": "./x/mjs/story-browser.js",
+      "require": "./x/cjs/story-browser.js"
     }
   },
   "files": [
     "x/*"
   ],
   "scripts": {
-    "build": "pnpm build:vite; pnpm build:bin; pnpm build:declarations; ",
+    "build": "pnpm build:clean; pnpm build:cjs; pnpm build:mjs;",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:mjs": "tsc -p tsconfig.mjs.json",
-    "build:clean": "rm -rf x/*",
+    "build:clean": "rimraf ./x/*",
     "build:declarations": "tsc -p tsconfig.declarations.json",
     "build:bin": "tsc -p tsconfig.bin.json",
     "build:vite": "vite build",
@@ -55,6 +55,7 @@
     "mobx-react-lite": "^3.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.7.4",
     "vite": "^3.0.2",
     "xroute": "^6.1.0"
