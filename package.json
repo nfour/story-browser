@@ -5,15 +5,10 @@
   "bin": {
     "makeStoryMap": "./x/cjs/bin/makeStoryMap.js"
   },
-  "main": "./x/cjs/react/index.js",
-  "module": "./x/mjs/react/index.js",
-  "types": "./x/cjs/react/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./x/mjs/react/index.js",
-      "require": "./x/cjs/react/index.js"
-    }
-  },
+  "main": "x/cjs/react/index.js",
+  "module": "x/mjs/react/index.js",
+  "types": "x/cjs/react/index.d.ts",
+ 
   "files": [
     "x/*"
   ],
