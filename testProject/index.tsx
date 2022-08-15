@@ -14,7 +14,6 @@ import { createMemoryHistory } from 'history'
 
 const Root = () => {
   const { stories } = useStoryBrowser({ modules: storyMap })
-
   const [router] = useState(
     () =>
       new XRouter(

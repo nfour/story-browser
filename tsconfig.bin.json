@@ -1,10 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "target": "es2019",
     "module": "CommonJS",
-    "outDir": "./x/cjs"
+    "outDir": "./x",
   },
-  "include": [
-    "./src"
-  ]
+  "include": ["src/bin"]
 }

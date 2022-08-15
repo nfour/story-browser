@@ -1,10 +1,14 @@
-import React, { useMemo, useEffect, useState, ReactNode } from 'react'
+import { useMemo, useEffect, useState, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import ReactResizeDetector from 'react-resize-detector'
-import { FilterableTree } from './FilterableTree'
-import { groupBy } from 'lodash'
+import {
+  FilterableTree,
+  TreeNode,
+  TreeNodeBranch,
+  TreeNodeLeaf,
+} from './FilterableTree'
+import { groupBy, last, uniq } from 'lodash'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
@@ -111,9 +115,10 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
-  const [treeNodes, setTreeNodes] = useState<Node[]>(() =>
+  const [treeNodes, setTreeNodes] = useState(() =>
     createTreeNodesFromStories({ stories: [...stories.values()] }),
   )
+
   const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
 
   return (
@@ -122,24 +127,16 @@ export const StoryBrowser: FC<
       className={className}
     >
       <$StoryBrowserInner>
-        <ReactResizeDetector handleHeight handleWidth>
-          {({ height, targetRef }) => (
-            <$StoryList>
-              <$FilterableTree>
-                <FilterableTree
-                  nodes={[]}
-                  onNodes={(n) => {
-                    console.log({ n })
-                    setTreeNodes(n)
-                  }}
-                  onSelect={(action) => {
-                    console.log(action)
-                  }}
-                />
-              </$FilterableTree>
-            </$StoryList>
-          )}
-        </ReactResizeDetector>
+        <$StoryList>
+          <$FilterableTree>
+            <FilterableTree
+              nodes={treeNodes}
+              onSelect={(action) => {
+                console.log(action)
+              }}
+            />
+          </$FilterableTree>
+        </$StoryList>
         {iframeSrc && <$StoryIFrame src={iframeSrc} />}
         {!iframeSrc && <RenderStory story={activeStory} context={context} />}
       </$StoryBrowserInner>
@@ -173,43 +170,58 @@ function createTreeNodesFromStories({
   stories,
 }: {
   stories: StoryComponent[]
-}): any[] {
+}): TreeNode[] {
+  const delimiter = '///'
   /** For components without a kind */
-  const unkindedKind = '*'
-  const makeKindKey = (kinds: string[]) => kinds.join('.')
-  const storyGroups = groupBy(stories, (s) => makeKindKey(s.kinds))
-  const storyGroupKeys = [unkindedKind, ...Object.keys(storyGroups)]
+  const makePath = (kinds: string[]) => kinds.join(delimiter)
+  const branchPaths = uniq(
+    stories
+      .map((story) =>
+        story.kinds.reduce((prev, curr) => {
+          return [...prev, makePath([...prev, curr])]
+        }, [] as string[]),
+      )
+      .flat(),
+  )
 
-  function createNodes(kindKey: string): any[] {
-    const childStories = storyGroups[kindKey] ?? []
-    const childStoryGroupKeys = storyGroupKeys.filter(
-      (k) => k !== kindKey && k.startsWith(kindKey),
+  const rootBranchPaths = uniq(stories.map((story) => story.kinds[0]))
+  const storyGroups = groupBy(stories, (s) => makePath(s.kinds))
+
+  function makeBranchNode(parentPath: string): TreeNode {
+    const childStoriesAtPath = stories.filter(
+      (s) => makePath(s.kinds) === parentPath,
     )
 
-    const childrenNodes = childStories.map(({ name, storyId, kinds }) => {
-      const key = makeKindKey(kinds)
+    const childBranchesAtPath = branchPaths
+      .filter((p) => makePath(p.split(delimiter).slice(0, -1)) === parentPath)
+      .map((p) => makeBranchNode(p))
 
+    const name = last(parentPath.split(delimiter))!
+
+    function makeChildNode(story: StoryComponent) {
       return {
-        id: storyId,
-        name: name,
-        // children: createNodes(key),
-      }
-    })
+        name: story.name,
+        id: story.storyId,
+        isSelected: false,
+        kind: 'leaf',
+      } as TreeNodeLeaf
+    }
 
-    const childrenGroups = childStoryGroupKeys.map((k) => ({
-      id: k,
-      name: k,
-      children: createNodes(k),
-    }))
+    const node: TreeNodeBranch = {
+      kind: 'branch',
+      id: parentPath,
+      isOpen: true,
+      name,
+      nodes: [
+        ...childBranchesAtPath,
+        ...childStoriesAtPath.map((s) => makeChildNode(s)),
+      ],
+    }
 
-    return [...childrenGroups, ...childrenNodes]
+    return node
   }
 
-  return storyGroupKeys.map((k) => ({
-    id: k,
-    name: k,
-    children: createNodes(k),
-  }))
+  return rootBranchPaths.map((path) => makeBranchNode(path)).flat()
 }
 
 export const $StoryListItem = styled.a`

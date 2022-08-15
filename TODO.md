@@ -1,0 +1,4 @@
+- Build output
+  - Give up on vite output for library
+    - Or check boilerplate repos to see what the diff is
+  - Use babel to transpile css= prop into ./x

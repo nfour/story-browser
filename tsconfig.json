@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES2019",
-    "module": "ES2020",
+    "target": "ESNext",
+    "module": "ESNext",
     "outDir": "./x",
     "allowJs": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "declaration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -18,8 +19,7 @@
     "node_modules"
   ],
   "include": [
-    "./*.ts",
-    "./*.tsx",
+    "*.ts",
     "*.js",
     ".*.js",
     "src",
