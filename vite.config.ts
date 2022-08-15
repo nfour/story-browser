@@ -22,10 +22,13 @@ export default defineConfig({
   esbuild: {
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
   },
+  optimizeDeps: {
+    force: true,
+  },
   plugins: [
     reactPlugin({
       jsxImportSource: '@emotion/react',
-      include: ['**/*.tsx', '**/*.ts'],
+      include: ['src/**/*.tsx', 'src/**/*.ts'],
       jsxRuntime: 'automatic',
     }),
   ],

@@ -1,7 +1,9 @@
-import { makeAutoObservable } from 'mobx'
-import { useMemo } from 'react'
+import { makeAutoObservable, reaction } from 'mobx'
+import { useEffect, useMemo } from 'react'
 import styled from '@emotion/styled'
 import { observer } from 'mobx-react-lite'
+import { motion, AnimatePresence } from 'framer-motion'
+import { cx } from '@emotion/css'
 
 class TreeState {
   constructor(public nodes: TreeNode[]) {
@@ -41,7 +43,8 @@ class TreeState {
   }
 
   toggleBranchVisibility = (path: string, to?: boolean) => {
-    const visibility = to ?? !this.branchVisibilityMap.get(path) ?? true
+    const prev = this.branchVisibilityMap.get(path)
+    const visibility = to ?? prev !== undefined ? !prev : false
 
     this.branchVisibilityMap.set(path, visibility)
   }
@@ -54,13 +57,22 @@ class TreeState {
 export const FilterableTree = observer<{
   className?: string
   nodes: TreeNode[]
-  onSelect(node: TreeNode): void
+  onSelect(node?: TreeNode): void
   onInit?(state: TreeState): void
 }>(({ nodes, onSelect, onInit, className }) => {
   const state = useMemo(() => new TreeState(nodes), [nodes])
 
+  useEffect(
+    () =>
+      reaction(
+        () => state.selectedNode,
+        (node) => onSelect(node),
+      ),
+    [],
+  )
+
   return (
-    <$TreeContainer>
+    <$TreeContainer {...{ className }}>
       {nodes.map((node) => (
         // Root nodes
         <NodeRenderer
@@ -89,35 +101,72 @@ export interface TreeNodeLeaf {
   isSelected: boolean
 }
 
+export enum ClassNames {
+  Root = 'root',
+  NodeBranch = 'node-branch',
+  NodeLeaf = 'node-leaf',
+  NodeLeafSelected = 'node-leaf-selected',
+  NodeBranchOpen = 'node-branch-open',
+  NodeTitle = 'node-title',
+}
+
 const NodeRenderer = observer<{
   state: TreeState
   node: TreeNode
   parentPath: string
 }>(({ node, state, parentPath }) => {
   const path = state.getNodePath(parentPath, node)
+  const isOpen = state.branchVisibilityMap.get(path) ?? true
+  const isSelected = state.selectedNode?.id === node.id
 
   if (node.kind === 'branch')
     return (
-      <$NodeContainer>
-        <$NodeTitle onClick={() => state.toggleBranchVisibility(path)}>
+      <$NodeContainer className={cx(ClassNames.NodeBranch)}>
+        <$NodeTitle
+          className={cx(ClassNames.NodeTitle)}
+          onClick={() => state.toggleBranchVisibility(path)}
+        >
           {node.name}
         </$NodeTitle>
-        <$NodeChildren>
-          {node.nodes.map((childNode) => (
-            <NodeRenderer
-              key={path}
-              node={childNode}
-              parentPath={path}
-              state={state}
-            />
-          ))}
-        </$NodeChildren>
+        <AnimatePresence initial={isOpen}>
+          {isOpen && (
+            <motion.section
+              key={path + 'content'}
+              initial="collapsed"
+              animate="open"
+              exit="collapsed"
+              variants={{
+                open: { opacity: 1, height: 'auto', scale: 1 },
+                collapsed: { opacity: 0, height: 0, scale: 0.8 },
+              }}
+              transition={{ duration: 0.2, ease: [0.04, 0.62, 0.23, 0.98] }}
+            >
+              <$NodeChildren>
+                {node.nodes.map((childNode) => (
+                  <NodeRenderer
+                    key={childNode.id}
+                    node={childNode}
+                    parentPath={path}
+                    state={state}
+                  />
+                ))}
+              </$NodeChildren>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </$NodeContainer>
     )
 
   return (
-    <$NodeContainer>
-      <$NodeTitle onClick={() => state.selectNode(path)}>
+    <$NodeContainer
+      className={cx(ClassNames.NodeLeaf, {
+        [ClassNames.NodeLeafSelected]: isSelected,
+      })}
+    >
+      <$NodeTitle
+        className={cx(ClassNames.NodeTitle)}
+        onClick={() => state.selectNode(path)}
+      >
         {node.name}
       </$NodeTitle>
     </$NodeContainer>
@@ -134,35 +183,28 @@ const $TreeContainer = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
-  && {
-    i {
-      border: 0;
-      outline: 0;
-    }
-  }
-`
-
-const $NodeFolderDecorator = styled.span`
-  margin-left: -3ex;
-  margin-right: 1ex;
-  opacity: 0.5;
 `
 
 const $NodeContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
-  font-family: monospace;
-  font-size: 1.2em;
-  padding-left: 2em;
+  padding-left: 1em;
+
+  &.${ClassNames.NodeLeaf} .${ClassNames.NodeTitle} {
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .${ClassNames.NodeLeafSelected} {
+    text-decoration: underline;
+  }
 `
 
 const $NodeTitle = styled.div`
   border: 0;
   padding: 0;
   cursor: pointer;
-  border-radius: 3px;
   padding: 1px 6px;
-  background: #00000006;
-  font-weight: 600;
+  white-space: nowrap;
 `

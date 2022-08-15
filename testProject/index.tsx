@@ -10,7 +10,7 @@ import {
 import * as storyMap from './nesting/folder/STORY_MAP'
 import { XRoute, XRouter } from 'xroute'
 import { Observer } from 'mobx-react-lite'
-import { createMemoryHistory } from 'history'
+import { createBrowserHistory } from 'history'
 
 const Root = () => {
   const { stories } = useStoryBrowser({ modules: storyMap })
@@ -29,7 +29,7 @@ const Root = () => {
             {} as { pathname: { story: string }; search: {} },
           ),
         ],
-        createMemoryHistory(),
+        createBrowserHistory(),
       ),
   )
 
@@ -51,7 +51,7 @@ const Root = () => {
                 }
                 /** @example "#/story/my-story--id" */
                 onStoryUri={({ storyId }) =>
-                  `#${router.routes.story.toUri({
+                  `${router.routes.story.toUri({
                     pathname: { story: storyId },
                   })}`
                 }

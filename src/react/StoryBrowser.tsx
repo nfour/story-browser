@@ -1,14 +1,9 @@
-import { useMemo, useEffect, useState, ReactNode } from 'react'
+import { useMemo, useEffect, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import {
-  FilterableTree,
-  TreeNode,
-  TreeNodeBranch,
-  TreeNodeLeaf,
-} from './FilterableTree'
-import { groupBy, last, uniq } from 'lodash'
+import { FilterableTree } from './FilterableTree'
+import { createTreeNodesFromStories } from './createTreeNodesFromStories'
 
 export const useStoryBrowser = ({
   modules: modulesInput,
@@ -115,8 +110,9 @@ export const StoryBrowser: FC<
     onActiveStoryIdChanged?.(firstKey)
   }, [activeStoryId, storyKeys.join('')])
 
-  const [treeNodes, setTreeNodes] = useState(() =>
-    createTreeNodesFromStories({ stories: [...stories.values()] }),
+  const treeNodes = useMemo(
+    () => createTreeNodesFromStories({ stories: [...stories.values()] }),
+    [stories],
   )
 
   const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
@@ -128,30 +124,24 @@ export const StoryBrowser: FC<
     >
       <$StoryBrowserInner>
         <$StoryList>
-          <$FilterableTree>
-            <FilterableTree
-              nodes={treeNodes}
-              onSelect={(action) => {
-                console.log(action)
-              }}
-            />
-          </$FilterableTree>
+          <$FilterableTree
+            nodes={treeNodes}
+            onSelect={(node) => {
+              onActiveStoryIdChanged?.(node?.id)
+            }}
+          />
         </$StoryList>
-        {iframeSrc && <$StoryIFrame src={iframeSrc} />}
-        {!iframeSrc && <RenderStory story={activeStory} context={context} />}
+        {iframeSrc ? (
+          <$StoryIFrame src={iframeSrc} />
+        ) : (
+          <RenderStory story={activeStory} context={context} />
+        )}
       </$StoryBrowserInner>
     </$StoryBrowser>
   )
 }
 
-const $FilterableTree = styled.div`
-  && {
-    &,
-    .tree-filter-container {
-      height: 100%;
-    }
-  }
-`
+const $FilterableTree = styled(FilterableTree)``
 
 export const RenderStory: FC<{
   story?: StoryComponent
@@ -165,64 +155,6 @@ export const RenderStory: FC<{
     })()}
   </$StoryRenderWrapper>
 )
-
-function createTreeNodesFromStories({
-  stories,
-}: {
-  stories: StoryComponent[]
-}): TreeNode[] {
-  const delimiter = '///'
-  /** For components without a kind */
-  const makePath = (kinds: string[]) => kinds.join(delimiter)
-  const branchPaths = uniq(
-    stories
-      .map((story) =>
-        story.kinds.reduce((prev, curr) => {
-          return [...prev, makePath([...prev, curr])]
-        }, [] as string[]),
-      )
-      .flat(),
-  )
-
-  const rootBranchPaths = uniq(stories.map((story) => story.kinds[0]))
-  const storyGroups = groupBy(stories, (s) => makePath(s.kinds))
-
-  function makeBranchNode(parentPath: string): TreeNode {
-    const childStoriesAtPath = stories.filter(
-      (s) => makePath(s.kinds) === parentPath,
-    )
-
-    const childBranchesAtPath = branchPaths
-      .filter((p) => makePath(p.split(delimiter).slice(0, -1)) === parentPath)
-      .map((p) => makeBranchNode(p))
-
-    const name = last(parentPath.split(delimiter))!
-
-    function makeChildNode(story: StoryComponent) {
-      return {
-        name: story.name,
-        id: story.storyId,
-        isSelected: false,
-        kind: 'leaf',
-      } as TreeNodeLeaf
-    }
-
-    const node: TreeNodeBranch = {
-      kind: 'branch',
-      id: parentPath,
-      isOpen: true,
-      name,
-      nodes: [
-        ...childBranchesAtPath,
-        ...childStoriesAtPath.map((s) => makeChildNode(s)),
-      ],
-    }
-
-    return node
-  }
-
-  return rootBranchPaths.map((path) => makeBranchNode(path)).flat()
-}
 
 export const $StoryListItem = styled.a`
   padding: 0.8em 1em;
@@ -283,6 +215,8 @@ export const $StoryList = styled.section`
   height: 100%;
   font-size: 0.75em;
   position: relative;
+  max-width: 200px;
+  overflow: auto;
 `
 
 export const $StoryBrowserInner = styled.div`
