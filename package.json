@@ -1,6 +1,6 @@
 {
   "name": "story-browser",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "A React component story browser as React components.",
   "bin": {
     "makeStoryMap": "./x/cjs/bin/makeStoryMap.js"
@@ -8,7 +8,6 @@
   "main": "x/cjs/react/index.js",
   "module": "x/mjs/react/index.js",
   "types": "x/cjs/react/index.d.ts",
- 
   "files": [
     "x/*"
   ],
