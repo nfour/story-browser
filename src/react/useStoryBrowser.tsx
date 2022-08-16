@@ -7,12 +7,14 @@ import {
   StoryFn,
 } from './StoryBrowser'
 
+export type ModuleInput = StoryModule[] | Record<string, StoryModule>
+
 export const useStoryBrowser = ({
   modules: modulesInput,
   useIframe = false,
 }: {
   /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: StoryModule[] | Record<string, StoryModule>
+  modules: ModuleInput
   useIframe?: boolean
 }) => {
   const modules =

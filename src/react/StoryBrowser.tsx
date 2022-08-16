@@ -4,17 +4,10 @@ import styled from '@emotion/styled'
 import { FilterableTree } from './FilterableTree'
 import { createTreeNodesFromStories } from './createTreeNodesFromStories'
 import { minimizedSidebarWidthPx, StoryBrowserClasses } from './constants'
-import { useStoryBrowser } from './useStoryBrowser'
+import { ModuleInput, useStoryBrowser } from './useStoryBrowser'
 import { cx } from '@emotion/css'
 
-interface ModuleInputs {
-  modules: StoryModule[]
-}
-interface StoriesInputs {
-  stories: StoryComponentMap
-}
-
-type ExclusiveInputs = ModuleInputs | StoriesInputs
+type ExclusiveInputs = { modules: ModuleInput } | { stories: StoryComponentMap }
 
 export const StoryBrowser = (() => {
   const StoryBrowser: FC<
