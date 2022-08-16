@@ -15,7 +15,7 @@ export function createTreeNodesFromStories({
     stories
       .map((story) =>
         story.kinds.reduce((prev, curr) => {
-          return [...prev, makePath([...prev, curr])]
+          return [...prev.slice(0, -1), makePath([...prev, curr])]
         }, [] as string[]),
       )
       .flat(),
