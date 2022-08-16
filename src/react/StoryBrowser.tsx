@@ -343,8 +343,6 @@ const $SidebarBottom = styled.div`
       font-size: 1.5em;
       font-weight: bold;
       line-height: 0.5em;
-      margin-top: -1px;
-      margin-bottom: 1px;
     }
   }
 `
