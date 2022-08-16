@@ -310,7 +310,6 @@ const $FilterBox = styled.div`
     opacity: 0.5;
     transition: all 0.5s ease;
 
-    margin-left: 1em;
     width: 100%;
     background: transparent;
     border: 0;

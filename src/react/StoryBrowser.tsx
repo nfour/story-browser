@@ -1,4 +1,4 @@
-import { useMemo, useEffect, ReactNode } from 'react'
+import { useMemo, useEffect, ReactNode, useState } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -69,6 +69,7 @@ type ExclusiveInputs = ModuleInputs | StoriesInputs
 
 export const StoryBrowser: FC<
   {
+    /** Initial theme state. Can be changed in sidebar UI. */
     theme?: 'light' | 'dark'
     activeStoryId?: string
     /** Use this to return a `src` url for an <iframe src={src} /> */
@@ -91,9 +92,10 @@ export const StoryBrowser: FC<
   className,
   layout,
   onStoryUri,
-  theme = 'dark',
+  theme: inputTheme = 'dark',
   ...input
 }) => {
+  const [theme, setTheme] = useState(inputTheme)
   const stories =
     'modules' in input
       ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
@@ -126,13 +128,23 @@ export const StoryBrowser: FC<
       className={className}
     >
       <$StoryBrowserInner>
-        <$FilterableTree
-          nodes={treeNodes}
-          selectedId={activeStoryId}
-          onSelect={(node) => {
-            onActiveStoryIdChanged?.(node?.id)
-          }}
-        />
+        <$Sidebar>
+          <$FilterableTree
+            nodes={treeNodes}
+            selectedId={activeStoryId}
+            onSelect={(node) => {
+              onActiveStoryIdChanged?.(node?.id)
+            }}
+          />
+          <$SidebarBottom>
+            <button
+              title="Toggle dark/light theme"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
+              {theme === 'dark' ? <>&#x25D2;</> : <>&#x25D3;</>}
+            </button>
+          </$SidebarBottom>
+        </$Sidebar>
         {iframeSrc ? (
           <$StoryRenderWrapper>
             <$StoryIFrame src={iframeSrc} />
@@ -165,13 +177,14 @@ type $StoryBrowserProps = {
 const $StoryBrowser = styled.main<$StoryBrowserProps>`
   width: 100%;
   height: 100%;
+
   ${({ colorScheme }) =>
     colorScheme === 'dark'
       ? css`
           --sb-sidebar-guideline: #2d2d2d;
           --sb-sidebar-bg: #1f1f1f;
-          --sb-sidebar-fg: #9b9b9b;
-          --sb-sidebar-shadow: rgba(0, 0, 0, 0.15);
+          --sb-sidebar-fg: #898989;
+          --sb-sidebar-shadow: rgba(0, 0, 0, 0.1);
           --sb-sidebar-selected-bg: #ffffffdd;
           --sb-sidebar-selected-fg: black;
           --sb-content-bg: #1f1f1f;
@@ -180,15 +193,13 @@ const $StoryBrowser = styled.main<$StoryBrowserProps>`
       : css`
           --sb-sidebar-guideline: #e7e7e7;
           --sb-sidebar-bg: #f1f1f1;
-          --sb-sidebar-fg: #252525;
+          --sb-sidebar-fg: #4b4b4b;
           --sb-sidebar-shadow: rgba(0, 0, 0, 0.05);
           --sb-sidebar-selected-bg: #2b2b2bdd;
           --sb-sidebar-selected-fg: #ededed;
           --sb-content-bg: #ffffff;
           --sb-content-fg: #000000;
         `}
-
-  background: #222;
 
   ${({ asFullscreenOverlay }) =>
     asFullscreenOverlay
@@ -200,16 +211,23 @@ const $StoryBrowser = styled.main<$StoryBrowserProps>`
       : ''}
 `
 
-const $FilterableTree = styled(FilterableTree)`
-  line-height: 1.75em;
-  box-shadow: inset -10px 0 10px var(--sb-sidebar-shadow),
+const $Sidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+  justify-content: space-between;
+  box-shadow: inset -8px 0 8px var(--sb-sidebar-shadow),
     inset -1px 0 0 1px var(--sb-sidebar-shadow);
+  background: var(--sb-sidebar-bg);
+  color: var(--sb-sidebar-fg);
+`
+
+const $FilterableTree = styled(FilterableTree)`
+  line-height: 1.8em;
   overflow: auto;
   font-size: 0.8em;
-  color: var(--sb-sidebar-fg);
-  background: var(--sb-sidebar-bg);
-
-  padding: 1em 1.5em 1em 1em;
+  padding: 1em 1.5em 1em 1.25em;
   max-width: 250px;
   width: auto;
 
@@ -271,6 +289,34 @@ const $FilterableTree = styled(FilterableTree)`
   }
 `
 
+const $SidebarBottom = styled.div`
+  padding: 0.25em 0.75em;
+  box-shadow: 0 -1px 0 1px var(--sb-sidebar-shadow);
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  opacity: 0.9;
+
+  button {
+    border: 2px solid var(--sb-sidebar-shadow);
+    padding: 0.15em 0.5em 0.3em;
+    border-top-color: transparent;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    border-radius: 3px;
+    transition: all 0.5s ease;
+    box-shadow: 0 1px 2px 1px var(--sb-sidebar-shadow);
+    cursor: pointer;
+    opacity: 0.75;
+
+    &:hover {
+      border-color: var(--sb-sidebar-fg);
+      opacity: 0.5;
+    }
+  }
+`
+
 const $StoryRenderWrapper = styled.main`
   height: 100%;
   width: 100%;
@@ -290,6 +336,7 @@ const $StoryIFrame = styled.iframe`
 
 const $StoryBrowserInner = styled.div`
   display: flex;
+  flex-direction: row;
   height: 100%;
   width: 100%;
 `
