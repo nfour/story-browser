@@ -28,28 +28,26 @@ import { StoryBrowser, useStoryBrowser } from 'story-browser'
 import * as modules from './storymap'
 
 // This example uses the `xroute` library for rounting
-export const StoryBrowserPage = ({ router }) => {
-  return (
-    <StoryBrowser
-      modules={modules}
-      activeStoryId={router.routes.storyBrowser.pathname?.story}
-      onActiveStoryIdChanged={(story) =>
-        router.routes.storyBrowser.push({ pathname: { story } })
-      }
-      /** @example "/story/my-story--id" */
-      onStoryUri={({ storyId }) =>
-        router.routes.story.toUri({
-          pathname: { story: storyId },
-        })
-      }
-      layout={{
-        branding: 'storyBrowser',
-        initialSidebarPosition: 'open',
-        initialTheme: 'light',
-        asFullscreenOverlay: true,
-      }}
-    />
-  )
+export const StoryBrowserPage = ({ router }: { router: XRouter }) => {
+  <StoryBrowser
+    modules={modules}
+    activeStoryId={router.routes.storyBrowser.pathname?.story}
+    onActiveStoryIdChanged={(story) =>
+      router.routes.storyBrowser.push({ pathname: { story } })
+    }
+    /** @example "/story/my-story--id" */
+    onStoryUri={({ storyId }) =>
+      router.routes.story.toUri({
+        pathname: { story: storyId },
+      })
+    }
+    layout={{
+      branding: 'storyBrowser',
+      initialSidebarPosition: 'open',
+      initialTheme: 'light',
+      asFullscreenOverlay: true,
+    }}
+  />
 }
 ```
 
