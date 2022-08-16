@@ -4,6 +4,7 @@ import styled from '@emotion/styled'
 import { observer } from 'mobx-react-lite'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cx } from '@emotion/css'
+import { FilterableTreeClasses } from './FilterableTreeClasses'
 
 class TreeState {
   constructor(public nodes: TreeNode[]) {
@@ -70,18 +71,6 @@ class TreeState {
 
     return false
   }
-}
-
-export enum FilterableTreeClasses {
-  Root = 'root',
-  NodeBranch = 'node-branch',
-  NodeLeaf = 'node-leaf',
-  NodeLeafSelected = 'node-leaf-selected',
-  NodeBranchOpen = 'node-branch-open',
-  NodeTitle = 'node-title',
-  NodeChildren = 'node-children',
-  FilterBox = 'filter-box',
-  FilterBoxHasContent = 'filter-box-has-content',
 }
 
 export const FilterableTree = (() => {
