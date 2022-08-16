@@ -2,7 +2,7 @@ import { useMemo, useEffect, ReactNode } from 'react'
 import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FilterableTree, FilterableTreeClasses } from './FilterableTree'
+import { FilterableTree } from './FilterableTree'
 import { createTreeNodesFromStories } from './createTreeNodesFromStories'
 
 export const useStoryBrowser = ({
@@ -158,6 +158,48 @@ export const RenderStory: FC<{
   </$StoryRenderWrapper>
 )
 
+type $StoryBrowserProps = {
+  asFullscreenOverlay: boolean
+  colorScheme: 'light' | 'dark'
+}
+const $StoryBrowser = styled.main<$StoryBrowserProps>`
+  width: 100%;
+  height: 100%;
+  ${({ colorScheme }) =>
+    colorScheme === 'dark'
+      ? css`
+          --sb-sidebar-guideline: #2d2d2d;
+          --sb-sidebar-bg: #1f1f1f;
+          --sb-sidebar-fg: #9b9b9b;
+          --sb-sidebar-shadow: rgba(0, 0, 0, 0.15);
+          --sb-sidebar-selected-bg: #ffffffdd;
+          --sb-sidebar-selected-fg: black;
+          --sb-content-bg: #1f1f1f;
+          --sb-content-fg: #ddd;
+        `
+      : css`
+          --sb-sidebar-guideline: #e7e7e7;
+          --sb-sidebar-bg: #f1f1f1;
+          --sb-sidebar-fg: #252525;
+          --sb-sidebar-shadow: rgba(0, 0, 0, 0.05);
+          --sb-sidebar-selected-bg: #2b2b2bdd;
+          --sb-sidebar-selected-fg: #ededed;
+          --sb-content-bg: #ffffff;
+          --sb-content-fg: #000000;
+        `}
+
+  background: #222;
+
+  ${({ asFullscreenOverlay }) =>
+    asFullscreenOverlay
+      ? css`
+          position: fixed;
+          top: 0;
+          left: 0;
+        `
+      : ''}
+`
+
 const $FilterableTree = styled(FilterableTree)`
   line-height: 1.75em;
   box-shadow: inset -10px 0 10px var(--sb-sidebar-shadow),
@@ -167,7 +209,7 @@ const $FilterableTree = styled(FilterableTree)`
   color: var(--sb-sidebar-fg);
   background: var(--sb-sidebar-bg);
 
-  padding: 1em 1.5em 1em 0em;
+  padding: 1em 1.5em 1em 1em;
   max-width: 250px;
   width: auto;
 
@@ -176,23 +218,50 @@ const $FilterableTree = styled(FilterableTree)`
     box-sizing: border-box;
   }
 
-  .${FilterableTreeClasses.NodeBranch} {
-    > .${FilterableTreeClasses.NodeTitle} {
+  && {
+    .${FilterableTree.Classes.NodeTitle} {
       font-size: 1.1em;
       font-weight: 600;
     }
-  }
+    .${FilterableTree.Classes.NodeBranch} {
+      > .${FilterableTree.Classes.NodeTitle} {
+        display: flex;
+        align-items: center;
+        opacity: 0.9;
 
-  && {
-    .${FilterableTreeClasses.NodeLeaf} {
+        &:before {
+          transition: all 0.5s ease;
+          content: '\\25E4';
+          margin-left: -2.5ex;
+          margin-right: 0.5ex;
+          font-size: 75%;
+          opacity: 0.6;
+        }
+      }
+
+      &.${FilterableTree.Classes.NodeBranchOpen} {
+        > .${FilterableTree.Classes.NodeTitle} {
+          opacity: 0.6;
+          &:before {
+            content: '\\25E3';
+            opacity: 0.3;
+          }
+        }
+      }
+    }
+
+    .${FilterableTree.Classes.NodeChildren} {
+      border-left: 1px solid var(--sb-sidebar-guideline);
+    }
+    .${FilterableTree.Classes.NodeLeaf} {
       transition: all 0.1s ease;
 
-      > .${FilterableTreeClasses.NodeTitle} {
+      > .${FilterableTree.Classes.NodeTitle} {
         font-size: 1em;
       }
 
-      &.${FilterableTreeClasses.NodeLeafSelected}
-        .${FilterableTreeClasses.NodeTitle} {
+      &.${FilterableTree.Classes.NodeLeafSelected}
+        .${FilterableTree.Classes.NodeTitle} {
         background: var(--sb-sidebar-selected-bg);
         color: var(--sb-sidebar-selected-fg);
         border-radius: 3px;
@@ -223,45 +292,6 @@ const $StoryBrowserInner = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
-`
-
-const $StoryBrowser = styled.main<{
-  asFullscreenOverlay: boolean
-  colorScheme: 'light' | 'dark'
-}>`
-  width: 100%;
-  height: 100%;
-  ${({ colorScheme }) =>
-    colorScheme === 'dark'
-      ? css`
-          --sb-sidebar-bg: #1f1f1f;
-          --sb-sidebar-fg: #9b9b9b;
-          --sb-sidebar-shadow: rgba(0, 0, 0, 0.15);
-          --sb-sidebar-selected-bg: #ffffffdd;
-          --sb-sidebar-selected-fg: black;
-          --sb-content-bg: #1f1f1f;
-          --sb-content-fg: #ddd;
-        `
-      : css`
-          --sb-sidebar-bg: #f1f1f1;
-          --sb-sidebar-fg: #252525;
-          --sb-sidebar-shadow: rgba(0, 0, 0, 0.05);
-          --sb-sidebar-selected-bg: #2b2b2bdd;
-          --sb-sidebar-selected-fg: #ededed;
-          --sb-content-bg: #ffffff;
-          --sb-content-fg: #000000;
-        `}
-
-  background: #222;
-
-  ${({ asFullscreenOverlay }) =>
-    asFullscreenOverlay
-      ? css`
-          position: fixed;
-          top: 0;
-          left: 0;
-        `
-      : ''}
 `
 
 export interface StoryModule {

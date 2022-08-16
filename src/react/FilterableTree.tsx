@@ -72,49 +72,67 @@ class TreeState {
   }
 }
 
-export const FilterableTree = observer<{
-  className?: string
-  nodes: TreeNode[]
-  onSelect(node?: TreeNode): void
-  selectedId: undefined | string
-  onInit?(state: TreeState): void
-}>(({ nodes, onSelect, onInit, selectedId, className }) => {
-  const state = useMemo(() => new TreeState(nodes), [nodes])
+export enum FilterableTreeClasses {
+  Root = 'root',
+  NodeBranch = 'node-branch',
+  NodeLeaf = 'node-leaf',
+  NodeLeafSelected = 'node-leaf-selected',
+  NodeBranchOpen = 'node-branch-open',
+  NodeTitle = 'node-title',
+  NodeChildren = 'node-children',
+  FilterBox = 'filter-box',
+  FilterBoxHasContent = 'filter-box-has-content',
+}
 
-  useEffect(
-    () =>
-      reaction(
-        () => state.selectedNode,
-        (node) => onSelect(node),
-      ),
-    [],
-  )
+export const FilterableTree = (() => {
+  const FilterableTree = observer<{
+    className?: string
+    nodes: TreeNode[]
+    onSelect(node?: TreeNode): void
+    selectedId: undefined | string
+    onInit?(state: TreeState): void
+  }>(({ nodes, onSelect, onInit, selectedId, className }) => {
+    const state = useMemo(() => new TreeState(nodes), [nodes])
 
-  useEffect(() => {
-    selectedId && state.selectNode(selectedId)
-  }, [selectedId])
+    useEffect(
+      () =>
+        reaction(
+          () => state.selectedNode,
+          (node) => onSelect(node),
+        ),
+      [],
+    )
 
-  useEffect(() => {
-    onInit?.(state)
-  }, [])
+    useEffect(() => {
+      selectedId && state.selectNode(selectedId)
+    }, [selectedId])
 
-  return (
-    <$TreeContainer {...{ className }}>
-      <FilterBox state={state} />
-      <$TreeInner>
-        {nodes.map((node) => (
-          // Root nodes
-          <NodeRenderer
-            key={node.id}
-            state={state}
-            node={node}
-            parentPath={TreeState.ROOT_NODE_ID}
-          />
-        ))}
-      </$TreeInner>
-    </$TreeContainer>
-  )
-})
+    useEffect(() => {
+      onInit?.(state)
+    }, [])
+
+    return (
+      <$TreeContainer {...{ className }}>
+        <FilterBox state={state} />
+        <$TreeInner>
+          {nodes.map((node) => (
+            // Root nodes
+            <NodeRenderer
+              key={node.id}
+              state={state}
+              node={node}
+              parentPath={TreeState.ROOT_NODE_ID}
+            />
+          ))}
+        </$TreeInner>
+      </$TreeContainer>
+    )
+  })
+
+  return Object.assign(FilterableTree, {
+    Classes: FilterableTreeClasses,
+  }) as typeof FilterableTree & { Classes: typeof FilterableTreeClasses }
+})()
 
 const FilterBox = observer<{
   state: TreeState
@@ -156,18 +174,6 @@ export interface TreeNodeLeaf {
   name: string
 }
 
-export enum FilterableTreeClasses {
-  Root = 'root',
-  NodeBranch = 'node-branch',
-  NodeLeaf = 'node-leaf',
-  NodeLeafSelected = 'node-leaf-selected',
-  NodeBranchOpen = 'node-branch-open',
-  NodeTitle = 'node-title',
-  NodeChildren = 'node-children',
-  FilterBox = 'filter-box',
-  FilterBoxHasContent = 'filter-box-has-content',
-}
-
 const NodeRenderer = observer<{
   state: TreeState
   node: TreeNode
@@ -179,7 +185,11 @@ const NodeRenderer = observer<{
 
   if (node.kind === 'branch')
     return (
-      <$NodeContainer className={cx(FilterableTreeClasses.NodeBranch)}>
+      <$NodeContainer
+        className={cx(FilterableTreeClasses.NodeBranch, {
+          [FilterableTreeClasses.NodeBranchOpen]: isOpen,
+        })}
+      >
         <$NodeTitle
           className={cx(FilterableTreeClasses.NodeTitle)}
           onClick={() => state.toggleBranchVisibility(path)}
@@ -256,8 +266,11 @@ const $NodeContainer = styled.div`
     width: 100%;
   }
 
-  .${FilterableTreeClasses.NodeTitle}, .${FilterableTreeClasses.NodeChildren} {
-    padding: 0.1em 0.5em 0.1em 1em;
+  .${FilterableTreeClasses.NodeChildren} {
+    padding: 0.1em 0;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    margin-left: 0.5em;
   }
 
   &.${FilterableTreeClasses.NodeLeaf} .${FilterableTreeClasses.NodeTitle} {
