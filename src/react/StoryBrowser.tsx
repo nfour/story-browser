@@ -33,7 +33,7 @@ export const StoryBrowser = (() => {
          * @option `undefined` to hide
          * @option () => ReactNode to provide your own
          */
-        branding?: 'storyBrowser' | 'none' | (() => ReactNode)
+        branding?: 'storyBrowser' | 'none' | (() => JSX.Element)
         /** Whether the sidebar is closed initially */
         initialSidebarPosition?: 'open' | 'closed'
         /**
@@ -115,6 +115,26 @@ export const StoryBrowser = (() => {
                   {theme === 'dark' ? <>&#x25D2;</> : <>&#x25D3;</>}
                 </button>
               </div>
+              <$BrandingBox className={StoryBrowserClasses.SidebarBrandingBox}>
+                {(() => {
+                  if (branding === 'storyBrowser')
+                    return (
+                      <$StoryBrowserLogo>
+                        <b>Story</b>
+                        <br />
+                        Browser
+                      </$StoryBrowserLogo>
+                    )
+
+                  if (typeof branding === 'function') {
+                    const Comp = branding
+
+                    return <Comp />
+                  }
+
+                  return <></>
+                })()}
+              </$BrandingBox>
               <div>
                 <button
                   className={StoryBrowserClasses.OpenCloseButton}
@@ -193,7 +213,8 @@ const $StoryBrowser = styled.main<$StoryBrowserProps>`
 
           .${StoryBrowser.Classes.SidebarBottomBox} {
             padding-left: 0.25em;
-            button:not(.${StoryBrowser.Classes.OpenCloseButton}) {
+            .${StoryBrowser.Classes.SidebarBrandingBox},
+              button:not(.${StoryBrowser.Classes.OpenCloseButton}) {
               display: none;
             }
           }
@@ -312,16 +333,17 @@ const $FilterableTree = styled(FilterableTree)`
 `
 
 const $SidebarBottom = styled.div`
-  padding: 0.25em 0.75em;
+  padding: 0.25em 0.25em;
   box-shadow: 0 -1px 0 1px var(--sb-sidebar-shadow);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   opacity: 0.9;
+  align-items: center;
 
   button {
     border: 2px solid var(--sb-sidebar-shadow);
-    padding: 0.15rem 0.5rem 0.3rem;
+    padding: 0.15rem 0.5rem 0.16rem;
     height: 100%;
     border-top-color: transparent;
     outline: 0;
@@ -345,6 +367,22 @@ const $SidebarBottom = styled.div`
       line-height: 0.5em;
     }
   }
+`
+
+const $BrandingBox = styled.div`
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+`
+
+const $StoryBrowserLogo = styled.div`
+  font-size: 11px;
+  width: 100%;
+  padding: 0 0.5rem;
+  opacity: 0.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: center;
 `
 
 const $StoryRenderWrapper = styled.main`
