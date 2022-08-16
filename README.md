@@ -53,7 +53,8 @@ export const StoryBrowserPage = ({ router }) => {
 }
 ```
 
-> See the full example [./testProject/Root.tsx](./testProject/Root.tsx) for details.
+> The full example also includes how to utilize iFramed components
+> See the full example here: [./testProject/Root.tsx](./testProject/Root.tsx)
 
 
 ## CLI Usage
