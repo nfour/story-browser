@@ -23,7 +23,7 @@ export default defineConfig({
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
   },
   optimizeDeps: {
-    force: true,
+    // force: true,
   },
   plugins: [
     reactPlugin({

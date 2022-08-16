@@ -4,7 +4,7 @@ import styled from '@emotion/styled'
 import { observer } from 'mobx-react-lite'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cx } from '@emotion/css'
-import { FilterableTreeClasses } from './FilterableTreeClasses'
+import { FilterableTreeClasses } from './constants'
 
 class TreeState {
   constructor(public nodes: TreeNode[]) {
@@ -101,7 +101,7 @@ export const FilterableTree = (() => {
     }, [])
 
     return (
-      <$TreeContainer {...{ className }}>
+      <$TreeContainer className={cx(FilterableTreeClasses.Root, className)}>
         <FilterBox state={state} />
         <$TreeInner>
           {nodes.map((node) => (
@@ -148,20 +148,6 @@ const FilterBox = observer<{
     </$FilterBox>
   )
 })
-
-export type TreeNode = TreeNodeBranch | TreeNodeLeaf
-export interface TreeNodeBranch {
-  kind: 'branch'
-  id: string
-  name: string
-  isOpen: boolean
-  nodes: TreeNode[]
-}
-export interface TreeNodeLeaf {
-  kind: 'leaf'
-  id: string
-  name: string
-}
 
 const NodeRenderer = observer<{
   state: TreeState
@@ -232,28 +218,11 @@ const NodeRenderer = observer<{
   )
 })
 
-const $NodeChildren = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`
-
 const $TreeContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
-`
-
-const $NodeContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  width: 100%;
-
-  section {
-    width: 100%;
-  }
 
   .${FilterableTreeClasses.NodeChildren} {
     padding: 0.1em 0;
@@ -272,21 +241,13 @@ const $NodeContainer = styled.div`
   }
 `
 
-const $NodeTitle = styled.div`
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  padding: 1px 6px;
-  white-space: nowrap;
-  min-width: 100%;
-`
-
 const $TreeInner = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 `
 
+const $BrandingBox = styled.div``
 const $FilterBox = styled.div`
   display: flex;
   flex-direction: row;
@@ -318,11 +279,9 @@ const $FilterBox = styled.div`
     margin-left: -3ex;
     border: 0;
     transition: all 0.3s ease;
-
     background: var(--sb-sidebar-fg);
     color: var(--sb-sidebar-bg);
     border-radius: 3px 3px 3px 0;
-
     cursor: pointer;
 
     &:hover {
@@ -339,3 +298,43 @@ const $FilterBox = styled.div`
     }
   }
 `
+
+const $NodeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 100%;
+
+  section {
+    width: 100%;
+  }
+`
+
+const $NodeTitle = styled.div`
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  padding: 1px 6px;
+  white-space: nowrap;
+  min-width: 100%;
+`
+
+const $NodeChildren = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`
+
+export type TreeNode = TreeNodeBranch | TreeNodeLeaf
+export interface TreeNodeBranch {
+  kind: 'branch'
+  id: string
+  name: string
+  isOpen: boolean
+  nodes: TreeNode[]
+}
+export interface TreeNodeLeaf {
+  kind: 'leaf'
+  id: string
+  name: string
+}

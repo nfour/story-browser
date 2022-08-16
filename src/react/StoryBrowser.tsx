@@ -1,62 +1,11 @@
 import { useMemo, useEffect, ReactNode, useState } from 'react'
-import { sanitize, storyNameFromExport, toId } from '@componentdriven/csf'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FilterableTree } from './FilterableTree'
 import { createTreeNodesFromStories } from './createTreeNodesFromStories'
-
-export const useStoryBrowser = ({
-  modules: modulesInput,
-  useIframe = false,
-}: {
-  /** Story modules eg. [import('./myStory.stories.tsx'), someModule, ...] */
-  modules: StoryModule[] | Record<string, StoryModule>
-  useIframe?: boolean
-}) => {
-  const modules =
-    modulesInput instanceof Array ? modulesInput : Object.values(modulesInput)
-
-  const allModuleKeys = modules
-    .map((mod) => Object.keys(mod))
-    .flat()
-    .join()
-
-  const stories: StoryComponentMap = useMemo(
-    () =>
-      new Map(
-        modules
-          .map(({ default: meta = {}, ...exportMembers }) => {
-            const components: [string, StoryComponent][] = []
-            const kinds = meta.title?.split('/').map(sanitize) ?? []
-
-            for (const [key, val] of Object.entries(exportMembers)) {
-              if (typeof val === 'function') {
-                const Story = val as StoryFn
-                const id = toId(kinds.join('-'), key)
-                const isIframed = Story.useIframe ?? meta.useIframe ?? useIframe
-
-                components.push([
-                  id,
-                  {
-                    kinds,
-                    Story,
-                    storyId: id,
-                    name: storyNameFromExport(key),
-                    useIframe: isIframed,
-                  },
-                ])
-              }
-            }
-
-            return components
-          })
-          .flat(),
-      ),
-    [allModuleKeys],
-  )
-
-  return { stories, modules }
-}
+import { minimizedSidebarWidthPx, StoryBrowserClasses } from './constants'
+import { useStoryBrowser } from './useStoryBrowser'
+import { cx } from '@emotion/css'
 
 interface ModuleInputs {
   modules: StoryModule[]
@@ -67,101 +16,146 @@ interface StoriesInputs {
 
 type ExclusiveInputs = ModuleInputs | StoriesInputs
 
-export const StoryBrowser: FC<
-  {
-    /** Initial theme state. Can be changed in sidebar UI. */
-    theme?: 'light' | 'dark'
-    activeStoryId?: string
-    /** Use this to return a `src` url for an <iframe src={src} /> */
-    onStoryUri?(story: StoryComponent): string
-    onActiveStoryIdChanged?(id: undefined | string): void
-    layout?: {
-      /**
-       * Adds css to make the component take all available space.
-       * @default true
-       */
-      asFullscreenOverlay?: boolean
-    }
-    className?: string
-    context?: {}
-  } & ExclusiveInputs
-> = ({
-  context = {},
-  onActiveStoryIdChanged,
-  activeStoryId,
-  className,
-  layout,
-  onStoryUri,
-  theme: inputTheme = 'dark',
-  ...input
-}) => {
-  const [theme, setTheme] = useState(inputTheme)
-  const stories =
-    'modules' in input
+export const StoryBrowser = (() => {
+  const StoryBrowser: FC<
+    {
+      activeStoryId?: string
+      /** Use this to return a `src` url for an <iframe src={src} /> */
+      onStoryUri?(story: StoryComponent): string
+      onActiveStoryIdChanged?(id: undefined | string): void
+      layout?: {
+        /** Initial theme state. Can be changed in sidebar UI. */
+        initialTheme?: 'light' | 'dark'
+        /**
+         * A branding section at the top of the sidebar.
+         * @default 'storyBrowser'
+         * @option 'storyBrowser'
+         * @option `undefined` to hide
+         * @option () => ReactNode to provide your own
+         */
+        branding?: 'storyBrowser' | 'none' | (() => ReactNode)
+        /** Whether the sidebar is closed initially */
+        initialSidebarPosition?: 'open' | 'closed'
+        /**
+         * Adds css to make the component take all available space.
+         * @default true
+         */
+        asFullscreenOverlay?: boolean
+      }
+      className?: string
+      context?: {}
+    } & ExclusiveInputs
+  > = ({
+    context = {},
+    onActiveStoryIdChanged,
+    activeStoryId,
+    className,
+    layout: {
+      asFullscreenOverlay = true,
+      initialTheme = 'dark',
+      branding = 'storyBrowser',
+      initialSidebarPosition = 'open',
+    } = {},
+    onStoryUri,
+    ...input
+  }) => {
+    const [theme, setTheme] = useState(initialTheme)
+    const [sidebarPosition, setSidebarPosition] = useState(
+      initialSidebarPosition,
+    )
+
+    const stories =
+      'modules' in input
       ? useStoryBrowser({ modules: input.modules }).stories // eslint-disable-line
-      : input.stories
+        : input.stories
 
-  const activeStory = stories.get(activeStoryId!)
-  const storyKeys = [...stories.keys()]
+    const activeStory = stories.get(activeStoryId!)
+    const storyKeys = [...stories.keys()]
 
-  useEffect(() => {
-    if (activeStory) return
+    useEffect(() => {
+      if (activeStory) return
 
-    const firstKey = storyKeys[0]
+      const firstKey = storyKeys[0]
 
-    if (!firstKey) return
+      if (!firstKey) return
 
-    onActiveStoryIdChanged?.(firstKey)
-  }, [activeStoryId, storyKeys.join('')])
+      onActiveStoryIdChanged?.(firstKey)
+    }, [activeStoryId, storyKeys.join('')])
 
-  const treeNodes = useMemo(
-    () => createTreeNodesFromStories({ stories: [...stories.values()] }),
-    [stories],
-  )
+    const treeNodes = useMemo(
+      () => createTreeNodesFromStories({ stories: [...stories.values()] }),
+      [stories],
+    )
 
-  const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
+    const iframeSrc = !!activeStory?.useIframe && onStoryUri?.(activeStory)
 
-  return (
-    <$StoryBrowser
-      colorScheme={theme}
-      asFullscreenOverlay={!!layout?.asFullscreenOverlay}
-      className={className}
-    >
-      <$StoryBrowserInner>
-        <$Sidebar>
-          <$FilterableTree
-            nodes={treeNodes}
-            selectedId={activeStoryId}
-            onSelect={(node) => {
-              onActiveStoryIdChanged?.(node?.id)
-            }}
-          />
-          <$SidebarBottom>
-            <button
-              title="Toggle dark/light theme"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              {theme === 'dark' ? <>&#x25D2;</> : <>&#x25D3;</>}
-            </button>
-          </$SidebarBottom>
-        </$Sidebar>
-        {iframeSrc ? (
-          <$StoryRenderWrapper>
-            <$StoryIFrame src={iframeSrc} />
-          </$StoryRenderWrapper>
-        ) : (
-          <RenderStory story={activeStory} context={context} />
-        )}
-      </$StoryBrowserInner>
-    </$StoryBrowser>
-  )
-}
+    return (
+      <$StoryBrowser
+        colorScheme={theme}
+        asFullscreenOverlay={asFullscreenOverlay}
+        className={cx(className, StoryBrowserClasses.Root)}
+        isMinimized={sidebarPosition === 'closed'}
+      >
+        <$StoryBrowserInner>
+          <$Sidebar className={StoryBrowserClasses.SidebarBox}>
+            <$FilterableTree
+              nodes={treeNodes}
+              selectedId={activeStoryId}
+              onSelect={(node) => {
+                onActiveStoryIdChanged?.(node?.id)
+              }}
+            />
+            <$SidebarBottom className={StoryBrowserClasses.SidebarBottomBox}>
+              <div>
+                <button
+                  className={StoryBrowserClasses.ThemeToggleButton}
+                  title="Toggle dark/light theme"
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                >
+                  {theme === 'dark' ? <>&#x25D2;</> : <>&#x25D3;</>}
+                </button>
+              </div>
+              <div>
+                <button
+                  className={StoryBrowserClasses.OpenCloseButton}
+                  title="Open or close the sidebar"
+                  onClick={() =>
+                    setSidebarPosition(
+                      sidebarPosition === 'open' ? 'closed' : 'open',
+                    )
+                  }
+                >
+                  <big>
+                    {sidebarPosition === 'open' ? <>&#8249;</> : <>&#8250;</>}
+                  </big>
+                </button>
+              </div>
+            </$SidebarBottom>
+          </$Sidebar>
+          {iframeSrc ? (
+            <$StoryRenderWrapper className={StoryBrowserClasses.RenderWindow}>
+              <$StoryIFrame src={iframeSrc} />
+            </$StoryRenderWrapper>
+          ) : (
+            <RenderStory story={activeStory} context={context} />
+          )}
+        </$StoryBrowserInner>
+      </$StoryBrowser>
+    )
+  }
+
+  return Object.assign(StoryBrowser, {
+    Classes: StoryBrowserClasses,
+  }) as typeof StoryBrowser & {
+    Classes: typeof StoryBrowserClasses
+  }
+})()
 
 export const RenderStory: FC<{
   story?: StoryComponent
   context?: {}
 }> = ({ story, context = {} }) => (
-  <$StoryRenderWrapper>
+  <$StoryRenderWrapper className={StoryBrowserClasses.RenderWindow}>
     {(() => {
       if (!story) return <></>
 
@@ -173,10 +167,38 @@ export const RenderStory: FC<{
 type $StoryBrowserProps = {
   asFullscreenOverlay: boolean
   colorScheme: 'light' | 'dark'
+  isMinimized?: boolean
 }
 const $StoryBrowser = styled.main<$StoryBrowserProps>`
   width: 100%;
   height: 100%;
+  transition: all 0.5s ease;
+
+  .${FilterableTree.Classes.Root} {
+    transition: all 0.5s ease;
+  }
+
+  ${({ isMinimized }) =>
+    isMinimized
+      ? css`
+          .${StoryBrowser.Classes.SidebarBox} {
+            width: ${minimizedSidebarWidthPx}px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+          }
+          .${FilterableTree.Classes.Root} {
+            overflow: hidden;
+            padding-left: ${minimizedSidebarWidthPx * 1.25}px;
+          }
+
+          .${StoryBrowser.Classes.SidebarBottomBox} {
+            padding-left: 0.25em;
+            button:not(.${StoryBrowser.Classes.OpenCloseButton}) {
+              display: none;
+            }
+          }
+        `
+      : ''}
 
   ${({ colorScheme }) =>
     colorScheme === 'dark'
@@ -294,12 +316,13 @@ const $SidebarBottom = styled.div`
   box-shadow: 0 -1px 0 1px var(--sb-sidebar-shadow);
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   opacity: 0.9;
 
   button {
     border: 2px solid var(--sb-sidebar-shadow);
-    padding: 0.15em 0.5em 0.3em;
+    padding: 0.15rem 0.5rem 0.3rem;
+    height: 100%;
     border-top-color: transparent;
     outline: 0;
     background: transparent;
@@ -313,6 +336,15 @@ const $SidebarBottom = styled.div`
     &:hover {
       border-color: var(--sb-sidebar-fg);
       opacity: 0.5;
+    }
+
+    /** Means its a big wonky character */
+    big {
+      font-size: 1.5em;
+      font-weight: bold;
+      line-height: 0.5em;
+      margin-top: -1px;
+      margin-bottom: 1px;
     }
   }
 `
@@ -341,26 +373,28 @@ const $StoryBrowserInner = styled.div`
   width: 100%;
 `
 
+type ExtraStoryProps = {
+  useIframe?: boolean
+}
+
 export interface StoryModule {
   default: {
     title?: string
     component?: StoryFn
-    useIframe?: boolean
-  }
-  [k: string]: StoryFn | unknown
+  } & ExtraStoryProps
+  [k: string]: (React.Component<any> & ExtraStoryProps) | unknown
 }
 
 export type StoryFn = {
   (context: any): JSX.Element
-  useIframe?: boolean
-}
-export interface StoryComponent {
+} & ExtraStoryProps
+
+export type StoryComponent = {
   storyId: string
   kinds: string[]
   name: string
   Story: StoryFn
-  useIframe: boolean
-}
+} & ExtraStoryProps
 
 export type StoryComponentMap = Map<StoryComponent['storyId'], StoryComponent>
 
