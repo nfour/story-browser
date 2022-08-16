@@ -1,21 +1,25 @@
 # Story Browser
 
-Render React based [CSF (Component Story Format)](https://storybook.js.org/docs/react/api/csf/) files using a react component!
+Story Browser will render React based [CSF (Component Story Format)](https://storybook.js.org/docs/react/api/csf/) files.
+
+> The difference is that this is just a React component, avoiding all of the tooling issues from `StoryBook` and `ViteBook`
+> However, you must route to this component and/or embed it into your application yourself
 
 **Features**:
-- [x] Render CSF 
-- [x] Render CSF components in `iframes` _(Optional, default:false)_
-- [x] CLI tool to generate import maps for stories
-- [x] Story Browser can be styled
-- [x] Story Browser has usable default layout
+- [x] Render stories in `iframes` _(Optional)_
+- [x] CLI to generate an import map for story files in the project
+- [x] Can be rethemed (CSS variables & Class names)
+- [x] Has dark & light theme
+- [x] Sidebar is a nested, collapsable, searchable tree
 - [ ] **Planned**:
-  - [ ] Sidebar listing is a [nested & collapsable * searchable tree](https://github.com/diogofcunha/react-virtualized-tree)
-  - [ ] Story Browser default layout is good enough
-  - [ ] Can zoom a component/iframe
-  - [ ] Snowpack routing integration example
+  - [ ] Can zoom rendered component in/out
 
 **Not planned**:
 - Full CSF support
+
++ [React Usage](#react-usage)
++ [CLI Usage](#cli-usage)
++ [Contributing](#contributing)
   
 ## React Usage
 
@@ -23,40 +27,47 @@ Render React based [CSF (Component Story Format)](https://storybook.js.org/docs/
 import { StoryBrowser, useStoryBrowser } from 'story-browser'
 import * as modules from './storymap'
 
-export default ({ route }) => {
-  const { stories } = useStoryBrowser({ modules })
-
+// This example uses the `xroute` library for rounting
+export const StoryBrowserPage = ({ router }) => {
   return (
     <StoryBrowser
-      stories={stories}
-      activeStoryId={route.params?.story}
-      onActiveStoryIdChanged={(story) => route.push({ story })}
-      layout={{ asFullscreenOverlay: true }}
+      modules={modules}
+      activeStoryId={router.routes.storyBrowser.pathname?.story}
+      onActiveStoryIdChanged={(story) =>
+        router.routes.storyBrowser.push({ pathname: { story } })
+      }
+      /** @example "/story/my-story--id" */
+      onStoryUri={({ storyId }) =>
+        router.routes.story.toUri({
+          pathname: { story: storyId },
+        })
+      }
+      layout={{
+        branding: 'storyBrowser',
+        initialSidebarPosition: 'open',
+        initialTheme: 'light',
+        asFullscreenOverlay: true,
+      }}
     />
   )
 }
 ```
 
-> In this example, `route.params.story` contains the active story id,    
-> and `route.push({ ... })` sets it
-
-Its up to you to route this component.
-
-See the full example [./testProject/index.tsx](./testProject/index.tsx) for details.
+> See the full example [./testProject/Root.tsx](./testProject/Root.tsx) for details.
 
 
-## CLI
+## CLI Usage
 
-```
-yarn add story-browser
-
-yarn makeStoryMap '**/*.stories.tsx' --output ./src/storyBrowser/storiesMap.ts
+```bash
+# Install it
+npm add story-browser
 ```
 
-> The above generates an import mapping at `./src/storyBrowser/storymap.ts`    
-> with all matched files from the provided glob pattern(s)
-
-## This project
+```bash
+# Generate a story map to import into the component
+# This is a simple glob pattern
+npm run makeStoryMap './src/**/*.stories.tsx' --output ./src/storyBrowser/storyMap.ts
+```
 
 ## Contributing
 
@@ -64,6 +75,5 @@ yarn makeStoryMap '**/*.stories.tsx' --output ./src/storyBrowser/storiesMap.ts
 git clone https://github.com/nfour/story-browser.git
 cd story-browser
 pnpm i
-pnpm build
-pnpm start
+pnpm dev # start dev server for ./testProject
 ```
