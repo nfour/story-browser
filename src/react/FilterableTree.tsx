@@ -42,8 +42,6 @@ class TreeState {
     const node =
       this.nodeMapping.paths.get(path) ?? this.nodeMapping.stories.get(path)
 
-    console.log({ path, node, map: this.nodeMapping, nodes: this.nodes })
-
     if (!node) return
 
     this.selectedNode = node
