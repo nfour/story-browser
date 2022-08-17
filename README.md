@@ -28,7 +28,7 @@ import { StoryBrowser, useStoryBrowser } from 'story-browser'
 import * as modules from './storymap'
 
 // This example uses the `xroute` library for rounting
-export const StoryBrowserPage = ({ router }: { router: XRouter }) => {
+export const StoryBrowserPage = ({ router }: { router: XRouter }) => 
   <StoryBrowser
     modules={modules}
     activeStoryId={router.routes.storyBrowser.pathname?.story}
@@ -48,7 +48,7 @@ export const StoryBrowserPage = ({ router }: { router: XRouter }) => {
       asFullscreenOverlay: true,
     }}
   />
-}
+
 ```
 
 > The full example also includes how to utilize iFramed components

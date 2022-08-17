@@ -385,6 +385,7 @@ const $StoryRenderWrapper = styled.main`
   flex-grow: 1;
   background: var(--sb-content-bg);
   color: var(--sb-content-fg);
+  overflow: auto;
 `
 
 const $StoryIFrame = styled.iframe`
