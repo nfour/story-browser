@@ -6,6 +6,7 @@ import {
   StoryComponent,
   StoryFn,
 } from './StoryBrowser'
+import { isPlainObject } from 'lodash'
 
 export type ModuleInput = StoryModule[] | Record<string, StoryModule>
 
@@ -34,7 +35,7 @@ export const useStoryBrowser = ({
             const kinds = meta.title?.split('/').map(sanitize) ?? []
 
             for (const [key, val] of Object.entries(exportMembers)) {
-              if (typeof val === 'function') {
+              if (isReactComponent(val)) {
                 const Story = val as StoryFn
                 const id = toId(kinds.join('-'), key)
                 const isIframed = Story.useIframe ?? meta.useIframe ?? useIframe
@@ -61,3 +62,7 @@ export const useStoryBrowser = ({
 
   return { stories, modules }
 }
+
+const isReactComponent = (v: any) =>
+  typeof v === 'function' ||
+  (isPlainObject(v) && v.$$typeof === Symbol.for('react.memo'))
