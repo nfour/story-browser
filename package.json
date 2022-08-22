@@ -1,6 +1,6 @@
 {
   "name": "story-browser",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "A React component story browser as React components.",
   "bin": {
     "makeStoryMap": "./x/cjs/bin/makeStoryMap.js"
