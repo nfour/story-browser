@@ -56,8 +56,6 @@ export const StoryBrowserPage = <
     const storyId = route.storyId
     const story = stories.get(storyId)!
 
-    if (!story) return <></>
-
     return <RenderStory story={story} context={route.context} />
   }
 
