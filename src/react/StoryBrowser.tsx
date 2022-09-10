@@ -13,7 +13,7 @@ export const StoryBrowser = (() => {
   const StoryBrowser: FC<
     {
       activeStoryId?: string
-      /** Use this to return a `src` url for an <iframe src={src} /> */
+      /** When using iframes, this is required to return a `src` url for an <iframe src={src} /> */
       onStoryUri?(story: StoryComponent): string
       onActiveStoryIdChanged?(id: undefined | string): void
       layout?: {
