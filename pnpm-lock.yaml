@@ -28,7 +28,7 @@ specifiers:
   rimraf: ^3.0.2
   typescript: ~4.8.2
   vite: ^3.0.2
-  xroute: ^6.6.0
+  xroute: ^6.7.0
   yargs: ^16.2.0
 
 dependencies:
@@ -59,7 +59,7 @@ devDependencies:
   rimraf: 3.0.2
   typescript: 4.8.2
   vite: 3.0.9
-  xroute: 6.6.0_history@5.0.1
+  xroute: link:../xroute
 
 packages:
 
@@ -2431,6 +2431,7 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: false
 
   /loose-envify/1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -2691,10 +2692,6 @@ packages:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
     dev: true
 
-  /path-to-regexp/6.2.0:
-    resolution: {integrity: sha512-f66KywYG6+43afgE/8j/GoiNyygk/bnoCbps++3ErRKsIYkGGupyv07R2Ok5m9i67Iqc+T2g1eAUGUPzWhYTyg==}
-    dev: true
-
   /path-type/4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
@@ -2755,13 +2752,6 @@ packages:
   /punycode/2.1.1:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
     engines: {node: '>=6'}
-    dev: true
-
-  /qs/6.10.1:
-    resolution: {integrity: sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.4
     dev: true
 
   /queue-microtask/1.2.3:
@@ -3190,19 +3180,6 @@ packages:
 
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-    dev: true
-
-  /xroute/6.6.0_history@5.0.1:
-    resolution: {integrity: sha512-4Z6n46d42YEsOBKbC0alHqUiZizM9S3dY7SDeg+FlPLmnTldD2Xtty73aEEoscpdOqm90WbKEjO/BCulh6WF1A==}
-    peerDependencies:
-      history: '5'
-    dependencies:
-      history: 5.0.1
-      lodash: 4.17.21
-      path-to-regexp: 6.2.0
-      qs: 6.10.1
-    optionalDependencies:
-      mobx: 6.3.3
     dev: true
 
   /y18n/5.0.8:
