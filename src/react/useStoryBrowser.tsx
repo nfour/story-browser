@@ -10,6 +10,23 @@ import { isPlainObject } from 'lodash'
 
 export type ModuleInput = StoryModule[] | Record<string, StoryModule>
 
+export const modulesFromGlob = (
+  modules: Record<string, any>,
+): Record<string, StoryModule> => {
+  return Object.fromEntries(
+    Object.entries(modules).map(([key, mod]) => [
+      pathnameToStoryName(key),
+      mod,
+    ]),
+  )
+}
+
+const pathnameToStoryName = (pathname: string) => {
+  const parts = pathname.split('/').filter(Boolean)
+
+  return parts.length > 1 ? parts.pop()?.match(/^([^.]+)\./)?.[1] : undefined
+}
+
 const normalizeModuleInput = (modules: ModuleInput): StoryModule[] => {
   if (Array.isArray(modules)) return modules
 
