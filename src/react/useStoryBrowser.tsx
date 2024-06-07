@@ -42,7 +42,11 @@ export const useStoryBrowser = ({
         modules
           .map(({ default: meta = {}, ...exportMembers }) => {
             const components: [string, StoryComponent][] = []
-            const kinds = meta.title?.split('/').map(sanitize) ?? []
+            const kinds =
+              meta.title
+                ?.split('/')
+                .map(sanitize)
+                .filter((k) => k.trim() != null) ?? []
 
             for (const [key, val] of Object.entries(exportMembers)) {
               if (isReactComponent(val)) {
