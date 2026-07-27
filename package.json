@@ -18,14 +18,14 @@
     "x/*"
   ],
   "scripts": {
-    "build": "pnpm build:clean; pnpm build:cjs; pnpm build:mjs;",
+    "build": "nub run build:clean && nub run build:cjs && nub run build:mjs",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:clean": "rimraf ./x/*",
     "build:declarations": "tsc -p tsconfig.declarations.json",
     "build:bin": "tsc -p tsconfig.bin.json",
     "build:vite": "vite build",
-    "test": "pnpm storyMap",
+    "test": "nub run storyMap",
     "storyMap": "node ./x/cjs/bin/makeStoryMap '**/*.stories.tsx' --output testProject/nesting/folder/STORY_MAP.ts",
     "dev:dist": "vite dev",
     "dev": "vite dev -c vite.testProject.config.ts"

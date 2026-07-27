@@ -59,13 +59,13 @@ export const StoryBrowserPage = ({ router }: { router: XRouter }) =>
 
 ```bash
 # Install it
-npm add story-browser
+nub add story-browser
 ```
 
 ```bash
 # Generate a story map to import into the component
 # This is a simple glob pattern
-npm run makeStoryMap './src/**/*.stories.tsx' --output ./src/storyBrowser/storyMap.ts
+nub run makeStoryMap './src/**/*.stories.tsx' --output ./src/storyBrowser/storyMap.ts
 ```
 
 ## Contributing
@@ -73,6 +73,6 @@ npm run makeStoryMap './src/**/*.stories.tsx' --output ./src/storyBrowser/storyM
 ```bash
 git clone https://github.com/nfour/story-browser.git
 cd story-browser
-pnpm i
-pnpm dev # start dev server for ./testProject
+nub install
+nub run dev # start dev server for ./testProject
 ```
